@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="utf-8">
+    <title>new-sell-detail</title>
+    <link th:href="${#request.getContextPath()} + '/css/custom.css'" rel="stylesheet">
+    <link th:href="${#request.getContextPath()} + '/css/second_hand_detail.css'" rel="stylesheet" type="text/css">
+    <link th:href="${#request.getContextPath()} + '/css/index.css'" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" th:href="${#request.getContextPath()} + '/webjars/bootstrap/3.3.7/css/bootstrap.min.css'">
+    <script th:src="${#request.getContextPath()} + '/webjars/jquery/2.1.1/jquery.min.js'"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" th:href="${#request.getContextPath()} + '/css/webuploader.css'"/>
+    <link rel="stylesheet" type="text/css" th:href="${#request.getContextPath()} + '/css/style.css'"/>
+    <script type="text/javascript" th:src="${#request.getContextPath()} + '/js/webuploader.js'"></script>
+    <script type="text/javascript" th:src="${#request.getContextPath()} + '/js/sell_upload.js'"></script>
+</head>
+<script type="text/javascript" th:inline="javascript">
+    // 路径
+    var base_path = [[${#httpServletRequest.getScheme() + '://' + #httpServletRequest.getServerName() + ":" + #httpServletRequest.getServerPort() + #httpServletRequest.getContextPath()}]];
+    // 页面初始化
+    $(window).load(
+        function () {
+            var pk = [[${pk}]]
+            if (pk != null) {
+                $.ajax({
+                    dataType: "json",
+                    type: "post",
+                    data: {pk: pk},
+                    url: "/visitor_data/sell_detail",
+                    success: function (res) {
+                        $("#pkSellRoom").val(pk)
+                        $("#title").val(res.title)
+                        $("#county").val(res.county)
+                        $("#location").val(res.location)
+                        $("#pkVillage_pkVillage").val(res.pkVillage.pkVillage)
+                        $("#pkVillage_title").val(res.pkVillage.title)
+                        $("#pkSellPrice_pkSellPrice").val(res.pkSellPrice.pkSellPrice)
+                        $("#pkSellPrice_totalPrice").val(res.pkSellPrice.totalPrice)
+                        $("#pkSellPrice_unitPrice").val(res.pkSellPrice.unitPrice)
+                        $("#pkSellRoomBasic_pkSellRoomBasic").val(res.pkSellRoomBasic.pkSellRoomBasic)
+                        $("#pkSellRoomBasic_apartment").val(res.pkSellRoomBasic.apartment)
+                        $("#pkSellRoomBasic_floor").val(res.pkSellRoomBasic.floor)
+                        $("#pkSellRoomBasic_floorNum").val(res.pkSellRoomBasic.floorNum)
+                        $("#pkSellRoomBasic_builtUpArea").val(res.pkSellRoomBasic.builtUpArea)
+                        $("#pkSellRoomBasic_structure").val(res.pkSellRoomBasic.structure)
+                        $("#pkSellRoomBasic_area").val(res.pkSellRoomBasic.area)
+                        $("#pkSellRoomBasic_type").val(res.pkSellRoomBasic.type)
+                        $("#pkSellRoomBasic_orientation").val(res.pkSellRoomBasic.orientation)
+                        $("#pkSellRoomBasic_building").val(res.pkSellRoomBasic.building)
+                        $("#pkSellRoomBasic_decoration").val(res.pkSellRoomBasic.decoration)
+                        $("#pkSellRoomBasic_ladder").val(res.pkSellRoomBasic.ladder)
+                        $("#pkSellRoomBasic_propertyYears").val(res.pkSellRoomBasic.propertyYears)
+                        $("#pkSellRoomTransaction_pkSellRoomTransaction").val(res.pkSellRoomTransaction.pkSellRoomTransaction)
+                        $("#pkSellRoomTransaction_listingTs").val(res.pkSellRoomTransaction.listingTs)
+                        $("#pkSellRoomTransaction_ownership").val(res.pkSellRoomTransaction.ownership)
+                        $("#pkSellRoomTransaction_lastTs").val(res.pkSellRoomTransaction.lastTs)
+                        $("#pkSellRoomTransaction_purpose").val(res.pkSellRoomTransaction.purpose)
+                        $("#pkSellRoomTransaction_years").val(res.pkSellRoomTransaction.years)
+                        $("#pkSellRoomTransaction_property").val(res.pkSellRoomTransaction.property)
+                        $("#pkSellRoomTransaction_mortgage").val(res.pkSellRoomTransaction.mortgage)
+                        $("#pkSellRoomTransaction_permit").val(res.pkSellRoomTransaction.permit)
+                        $("#pkSellRoomCharacteristic_pkSellRoomCharacteristic").val(res.pkSellRoomCharacteristic.pkSellRoomCharacteristic)
+                        $("#pkSellRoomCharacteristic_core").val(res.pkSellRoomCharacteristic.core)
+                        $("#pkSellRoomCharacteristic_apartment").val(res.pkSellRoomCharacteristic.apartment)
+                        $("#pkSellRoomCharacteristic_village").val(res.pkSellRoomCharacteristic.village)
+                        $("#pkSellRoomCharacteristic_crowd").val(res.pkSellRoomCharacteristic.crowd)
+                        $("#pkSellRoomCharacteristic_traffic").val(res.pkSellRoomCharacteristic.traffic)
+                        $("#pkSellRoomCharacteristic_surround").val(res.pkSellRoomCharacteristic.surround)
+                        $("#pkSellRoomCharacteristic_taxation").val(res.pkSellRoomCharacteristic.taxation)
+                        $("#title").attr("readOnly", true)
+                        $("#county").attr("readOnly", true)
+                        $("#location").attr("readOnly", true)
+                        $("#pkVillage_title").attr("readOnly", true)
+                        $("#pkSellPrice_totalPrice").attr("readOnly", true)
+                        $("#pkSellPrice_unitPrice").attr("readOnly", true)
+                        $("#pkSellRoomBasic_apartment").attr("readOnly", true)
+                        $("#pkSellRoomBasic_floor").attr("readOnly", true)
+                        $("#pkSellRoomBasic_floorNum").attr("readOnly", true)
+                        $("#pkSellRoomBasic_builtUpArea").attr("readOnly", true)
+                        $("#pkSellRoomBasic_structure").attr("readOnly", true)
+                        $("#pkSellRoomBasic_area").attr("readOnly", true)
+                        $("#pkSellRoomBasic_type").attr("readOnly", true)
+                        $("#pkSellRoomBasic_orientation").attr("readOnly", true)
+                        $("#pkSellRoomBasic_building").attr("readOnly", true)
+                        $("#pkSellRoomBasic_decoration").attr("readOnly", true)
+                        $("#pkSellRoomBasic_ladder").attr("readOnly", true)
+                        $("#pkSellRoomBasic_propertyYears").attr("readOnly", true)
+                        $("#pkSellRoomTransaction_listingTs").attr("readOnly", true)
+                        $("#pkSellRoomTransaction_ownership").attr("readOnly", true)
+                        $("#pkSellRoomTransaction_lastTs").attr("readOnly", true)
+                        $("#pkSellRoomTransaction_purpose").attr("readOnly", true)
+                        $("#pkSellRoomTransaction_years").attr("readOnly", true)
+                        $("#pkSellRoomTransaction_property").attr("readOnly", true)
+                        $("#pkSellRoomTransaction_mortgage").attr("readOnly", true)
+                        $("#pkSellRoomTransaction_permit").attr("readOnly", true)
+                        $("#pkSellRoomCharacteristic_core").attr("readOnly", true)
+                        $("#pkSellRoomCharacteristic_apartment").attr("readOnly", true)
+                        $("#pkSellRoomCharacteristic_village").attr("readOnly", true)
+                        $("#pkSellRoomCharacteristic_crowd").attr("readOnly", true)
+                        $("#pkSellRoomCharacteristic_traffic").attr("readOnly", true)
+                        $("#pkSellRoomCharacteristic_surround").attr("readOnly", true)
+                        $("#pkSellRoomCharacteristic_taxation").attr("readOnly", true)
+                        for (var i = 0; i < res.imgs.length; i++) {
+                            $("#nsd2").append(
+                                "<div class='col-sm-6 col-md-3' id='" +
+                                res.imgs[i].pkRoomImg +
+                                "'><div class='thumbnail'>" +
+                                "<img src='" +
+                                base_path + "/visitor_data/room_img/" + res.imgs[i].pkRoomImg +
+                                "' alt='通用的占位符缩略图'>" +
+                                "<div class='caption img_b' style='text-align: center' hidden><p>" +
+                                "<a href='#' class='btn btn-danger' " +
+                                "role='button' onclick='deleteImg(\"" +
+                                res.imgs[i].pkRoomImg +
+                                "\")'>删除</a></p></div></div></div>"
+                            )
+                        }
+                        $("#nsd1").hide()
+                        $("#but").html(
+                            "<div class='col-md-6 col-md-offset-3'>" +
+                            "<button type='button' class='btn btn-success' onclick='change()'>修改</button>" +
+                            "<button type='button' class='btn btn-primary' onclick='window.location.href=" +
+                            "\"/customer/compartment/" +
+                            pk +
+                            "\"'>下一项</button>" +
+                            "<button type='button' class='btn btn-info' onclick='window.history.back(-1)'>取消</button>" +
+                            "<button type='button' class='btn btn-danger' onclick='dele()'>删除</button>" +
+                            "</div>"
+                        )
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                })
+            }
+        }
+    );
+    // 点击事件
+    $(document).ready(function () {
+        // 个人信息
+        $("#person").click(function () {
+            window.location.href = '/customer/personal/' + $("#u").text()
+        })
+        $("#title").blur(function () {
+            if ($("#title").val() != "") {
+                $.ajax({
+                    type: "post",
+                    url: "/customer_data/sell_title",
+                    data: {title: $("#title").val()},
+                    success: function (res) {
+                        if (res == 0) {
+                            $("#title_tie").html("")
+                        } else {
+                            $("#title_tie").html("<p style='color: red'>标题已被使用</p>")
+                        }
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                })
+            } else {
+                $("#title_tie").html("")
+            }
+        })
+        $("#pkSellPrice_totalPrice").blur(function () {
+            if ($("#pkSellPrice_totalPrice").val() != "") {
+                if ($("#pkSellPrice_totalPrice").val().search(/^(\-|\+)?\d+(\.\d+)?$/)) {
+                    $("#pkSellPrice_totalPrice_tie").html("<p style='color: red'>只能填数字</p>")
+                } else {
+                    $("#pkSellPrice_totalPrice_tie").html("")
+                }
+            }
+        })
+        $("#pkSellPrice_unitPrice").blur(function () {
+            if ($("#pkSellPrice_unitPrice").val() != "") {
+                if ($("#pkSellPrice_unitPrice").val().search(/^(\-|\+)?\d+(\.\d+)?$/)) {
+                    $("#pkSellPrice_unitPrice_tie").html("<p style='color: red'>只能填数字</p>")
+                } else {
+                    $("#pkSellPrice_unitPrice_tie").html("")
+                }
+            }
+        })
+        $("#pkSellRoomBasic_floorNum").blur(function () {
+            if ($("#pkSellRoomBasic_floorNum").val() != "") {
+                if ($("#pkSellRoomBasic_floorNum").val().search(/^(\-|\+)?\d+(\.\d+)?$/)) {
+                    $("#pkSellRoomBasic_floorNum_tie").html("<p style='color: red'>只能填数字</p>")
+                } else {
+                    $("#pkSellRoomBasic_floorNum_tie").html("")
+                }
+            }
+        })
+        $("#pkSellRoomBasic_builtUpArea").blur(function () {
+            if ($("#pkSellRoomBasic_builtUpArea").val() != "") {
+                if ($("#pkSellRoomBasic_builtUpArea").val().search(/^(\-|\+)?\d+(\.\d+)?$/)) {
+                    $("#pkSellRoomBasic_builtUpArea_tie").html("<p style='color: red'>只能填数字</p>")
+                } else {
+                    $("#pkSellRoomBasic_builtUpArea_tie").html("")
+                }
+            }
+        })
+        $("#pkSellRoomBasic_area").blur(function () {
+            if ($("#pkSellRoomBasic_area").val() != "") {
+                if ($("#pkSellRoomBasic_area").val().search(/^(\-|\+)?\d+(\.\d+)?$/)) {
+                    $("#pkSellRoomBasic_area_tie").html("<p style='color: red'>只能填数字</p>")
+                } else {
+                    $("#pkSellRoomBasic_area_tie").html("")
+                }
+            }
+        })
+        $("#pkSellRoomBasic_propertyYears").blur(function () {
+            if ($("#pkSellRoomBasic_propertyYears").val() != "") {
+                if ($("#pkSellRoomBasic_propertyYears").val().search(/^(\-|\+)?\d+(\.\d+)?$/)) {
+                    $("#pkSellRoomBasic_propertyYears_tie").html("<p style='color: red'>只能填数字</p>")
+                } else {
+                    $("#pkSellRoomBasic_propertyYears_tie").html("")
+                }
+            }
+        })
+    })
+
+    // 修改
+    function change() {
+        $("#title").removeAttr("readonly")
+        $("#county").removeAttr("readonly")
+        $("#location").removeAttr("readonly")
+        $("#pkVillage_title").removeAttr("readonly")
+        $("#pkSellPrice_totalPrice").removeAttr("readonly")
+        $("#pkSellPrice_unitPrice").removeAttr("readonly")
+        $("#pkSellRoomBasic_apartment").removeAttr("readonly")
+        $("#pkSellRoomBasic_floor").removeAttr("readonly")
+        $("#pkSellRoomBasic_floorNum").removeAttr("readonly")
+        $("#pkSellRoomBasic_builtUpArea").removeAttr("readonly")
+        $("#pkSellRoomBasic_structure").removeAttr("readonly")
+        $("#pkSellRoomBasic_area").removeAttr("readonly")
+        $("#pkSellRoomBasic_type").removeAttr("readonly")
+        $("#pkSellRoomBasic_orientation").removeAttr("readonly")
+        $("#pkSellRoomBasic_building").removeAttr("readonly")
+        $("#pkSellRoomBasic_decoration").removeAttr("readonly")
+        $("#pkSellRoomBasic_ladder").removeAttr("readonly")
+        $("#pkSellRoomBasic_propertyYears").removeAttr("readonly")
+        $("#pkSellRoomTransaction_listingTs").removeAttr("readonly")
+        $("#pkSellRoomTransaction_ownership").removeAttr("readonly")
+        $("#pkSellRoomTransaction_lastTs").removeAttr("readonly")
+        $("#pkSellRoomTransaction_purpose").removeAttr("readonly")
+        $("#pkSellRoomTransaction_years").removeAttr("readonly")
+        $("#pkSellRoomTransaction_property").removeAttr("readonly")
+        $("#pkSellRoomTransaction_mortgage").removeAttr("readonly")
+        $("#pkSellRoomTransaction_permit").removeAttr("readonly")
+        $("#pkSellRoomCharacteristic_core").removeAttr("readonly")
+        $("#pkSellRoomCharacteristic_apartment").removeAttr("readonly")
+        $("#pkSellRoomCharacteristic_village").removeAttr("readonly")
+        $("#pkSellRoomCharacteristic_crowd").removeAttr("readonly")
+        $("#pkSellRoomCharacteristic_traffic").removeAttr("readonly")
+        $("#pkSellRoomCharacteristic_surround").removeAttr("readonly")
+        $("#pkSellRoomCharacteristic_taxation").removeAttr("readonly")
+        $("#nsd1").show()
+        $(".img_b").show()
+        $("#but").html(
+            "<div class='col-md-6 col-md-offset-3'>" +
+            "<button type='button' class='btn btn-success' onclick='update()'>提交</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+            "<button type='button' class='btn btn-danger' onclick='window.location.reload()'>取消</button></div>"
+        )
+    }
+
+    // 删除
+    function deleteImg(x) {
+        var flag = $("#delete_img input").val()
+        if (!flag) {
+            $("#delete_img").append(
+                "<input name='deleteImg[" +
+                0 +
+                "]" +
+                "' value='" +
+                x +
+                "' placeholder='" +
+                0 +
+                "'/>"
+            )
+        } else {
+            var now = $("#delete_img input:last").attr("placeholder")
+            $("#delete_img").append(
+                "<input name='deleteImg[" +
+                (++now) +
+                "]" +
+                "' value='" +
+                x +
+                "' placeholder='" +
+                now +
+                "'/>"
+            )
+        }
+        var id = '#' + x
+        $(id).hide()
+    }
+    function dele() {
+        $.ajax({
+            type: "post",
+            dataType: "json",
+            url: "/customer_data/delete_sell_room",
+            data: {pk: $("#pkSellRoom").val()},
+            success: function (res) {
+                if (res === 0) {
+                    alert("删除失败")
+                } else {
+                    alert("删除成功")
+                }
+                window.location.href= '/customer/personal/' + $("#u").text()
+            },
+            error: function () {
+                alert("error")
+            }
+        })
+    }
+
+    //提交
+    function update() {
+        if (
+            $("#title").val() === "" ||
+            $("#county").val() === "" ||
+            $("#location").val() === "" ||
+            $("#pkVillage_title").val() == "" ||
+            $("#pkSellPrice_totalPrice").val() === "" ||
+            $("#pkSellPrice_unitPrice").val() === "" ||
+            $("#pkSellRoomBasic_apartment").val() === "" ||
+            $("#pkSellRoomBasic_floor").val() === "" ||
+            $("#pkSellRoomBasic_floorNum").val() === "" ||
+            $("#pkSellRoomBasic_builtUpArea").val() === "" ||
+            $("#pkSellRoomBasic_structure").val() === "" ||
+            $("#pkSellRoomBasic_area").val() === "" ||
+            $("#pkSellRoomBasic_type").val() === "" ||
+            $("#pkSellRoomBasic_orientation").val() === "" ||
+            $("#pkSellRoomBasic_building").val() === "" ||
+            $("#pkSellRoomBasic_decoration").val() === "" ||
+            $("#pkSellRoomBasic_ladder").val() === "" ||
+            $("#pkSellRoomBasic_propertyYears").val() === "" ||
+            $("#pkSellRoomTransaction_listingTs").val() === "" ||
+            $("#pkSellRoomTransaction_ownership").val() === "" ||
+            $("#pkSellRoomTransaction_lastTs").val() === "" ||
+            $("#pkSellRoomTransaction_purpose").val() === "" ||
+            $("#pkSellRoomTransaction_years").val() === "" ||
+            $("#pkSellRoomTransaction_property").val() === "" ||
+            $("#pkSellRoomTransaction_mortgage").val() === "" ||
+            $("#pkSellRoomTransaction_permit").val() === "" ||
+            $("#pkSellRoomCharacteristic_core").val() === "" ||
+            $("#pkSellRoomBasic_propertyYears_tie p").text() !== "" ||
+            $("#pkSellPrice_totalPrice_tie p").text() !== "" ||
+            $("#pkSellPrice_unitPrice_tie p").text() !== "" ||
+            $("#title_tie p").text() !== "" ||
+            $("#pkSellRoomBasic_floorNum_tie p").text() !== "" ||
+            $("#pkSellRoomBasic_builtUpArea_tie p").text() !== "" ||
+            $("#pkSellRoomBasic_area_tie p").text() !== ""
+        ) {
+            alert("请填好所有内容后再提交")
+        } else {
+            $.ajax({
+                type: "post",
+                data: $("#sell_form").serialize(),
+                url: "/customer_data/update_sell_room",
+                success: function (res) {
+                    if (res == 0) {
+                        alert("修改失败")
+                    } else {
+                        alert("修改成功")
+                        window.location.reload()
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+    }
+
+    // 下一步
+    var psr
+    function nextStep() {
+        if (
+            $("#title").val() === "" ||
+            $("#county").val() === "" ||
+            $("#location").val() === "" ||
+            $("#pkVillage_title").val() == "" ||
+            $("#pkSellPrice_totalPrice").val() === "" ||
+            $("#pkSellPrice_unitPrice").val() === "" ||
+            $("#pkSellRoomBasic_apartment").val() === "" ||
+            $("#pkSellRoomBasic_floor").val() === "" ||
+            $("#pkSellRoomBasic_floorNum").val() === "" ||
+            $("#pkSellRoomBasic_builtUpArea").val() === "" ||
+            $("#pkSellRoomBasic_structure").val() === "" ||
+            $("#pkSellRoomBasic_area").val() === "" ||
+            $("#pkSellRoomBasic_type").val() === "" ||
+            $("#pkSellRoomBasic_orientation").val() === "" ||
+            $("#pkSellRoomBasic_building").val() === "" ||
+            $("#pkSellRoomBasic_decoration").val() === "" ||
+            $("#pkSellRoomBasic_ladder").val() === "" ||
+            $("#pkSellRoomBasic_propertyYears").val() === "" ||
+            $("#pkSellRoomTransaction_listingTs").val() === "" ||
+            $("#pkSellRoomTransaction_ownership").val() === "" ||
+            $("#pkSellRoomTransaction_lastTs").val() === "" ||
+            $("#pkSellRoomTransaction_purpose").val() === "" ||
+            $("#pkSellRoomTransaction_years").val() === "" ||
+            $("#pkSellRoomTransaction_property").val() === "" ||
+            $("#pkSellRoomTransaction_mortgage").val() === "" ||
+            $("#pkSellRoomTransaction_permit").val() === "" ||
+            $("#pkSellRoomCharacteristic_core").val() === "" ||
+            $("#pkSellRoomBasic_propertyYears_tie p").text() !== "" ||
+            $("#pkSellPrice_totalPrice_tie p").text() !== "" ||
+            $("#pkSellPrice_unitPrice_tie p").text() !== "" ||
+            $("#title_tie p").text() !== "" ||
+            $("#pkSellRoomBasic_floorNum_tie p").text() !== "" ||
+            $("#pkSellRoomBasic_builtUpArea_tie p").text() !== "" ||
+            $("#pkSellRoomBasic_area_tie p").text() !== "" ||
+            !$("#img input").val()
+        ) {
+            alert("请填好所有内容后再下一步")
+        } else {
+            $.ajax({
+                type: "post",
+                data: $("#sell_form").serialize(),
+                url: "/customer_data/do_sell_room",
+                success: function (res) {
+                    if (!res) {
+                        alert("未知错误")
+                    } else {
+                        psr = res
+                        o(res)
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+    }
+
+    function o(x) {
+        $.ajax({
+            dataType: "json",
+            type: "post",
+            data: {
+                cus: $("#u").text(),
+                room: x,
+                type: "sell"
+            },
+            url: "/customer_data/do_owner",
+            success: function (res) {
+                if (res == 0) {
+                    alert("新增失败")
+                } else {
+                    window.location.href = '/customer/new_compartment/' + psr
+                }
+            },
+            error: function () {
+                alert("error")
+            }
+        })
+    }
+
+</script>
+
+
+<body data-spy="scroll" data-target="#myScrollspy">
+<div class="container">
+    <div class="jumbotron">
+        <h1>广州房源信息系统</h1>
+    </div>
+    <div class="row">
+        <div class="col-xs-3" id="myScrollspy">
+            <ul class="nav nav-tabs nav-stacked" data-spy="affix" data-offset-top="125">
+                <li class="active"><a href="/visitor/index">二手房</a></li>
+                <li><a href="/visitor/lease">租房</a></li>
+                <li><a href="/visitor/village">小区</a></li>
+                <li sec:authorize="!isAuthenticated()"><a data-toggle="modal" data-target="#addModal">登录/注册</a></li>
+                <li sec:authorize="isAuthenticated()">
+                    <a id="person"><span class="glyphicon glyphicon-ok-circle" style="color: green"></span>
+                        <span sec:authentication="name" id="u"></span></a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-9">
+            <form id="sell_form">
+                <input hidden id="pkSellRoom" name="pkSellRoom">
+                <div id="nsd1">
+                    <div id="wrapper">
+                        <div id="container">
+                            <!--头部，相册选择和格式选择-->
+                            <div id="uploader">
+                                <div class="queueList">
+                                    <div id="dndArea" class="placeholder">
+                                        <div id="filePicker"></div>
+                                        <p>或将照片拖到这里，单次最多可选300张</p>
+                                    </div>
+                                </div>
+                                <div class="statusBar" style="display:none;">
+                                    <div class="info"></div>
+                                    <div class="btns">
+                                        <div id="filePicker2"></div>
+                                        <div class="uploadBtn">开始上传</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="nsd2"></div>
+                <br>
+                <div class="x_panel">
+                    <div class="x_content">
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="title">标题
+                                <span class="required" style="color: red;">*</span>
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="title" name="title"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-12 col-sm-12" id="title_tie" style="text-align: center">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="county">所在县镇
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="county" name="county"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="county_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="location">具体地址
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="location" name="location"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <div class="col-md-3 col-sm-3" id="location_tie">
+                                </div>
+                            </div>
+                        </div>
+                        <br><br>
+                        <input hidden id="pkVillage_pkVillage" name="pkVillage.pkVillage">
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkVillage_title">小区
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkVillage_title" name="pkVillage.title"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <div class="col-md-3 col-sm-3" id="pkVillage_title_tie">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="img" hidden></div>
+                    <div id="delete_img" hidden></div>
+                </div>
+                <br>
+                <hr>
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>价格</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <input hidden id="pkSellPrice_pkSellPrice" name="pkSellPrice.pkSellPrice">
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkSellPrice_totalPrice">总价
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group">
+                                <input type="text" id="pkSellPrice_totalPrice" name="pkSellPrice.totalPrice"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <span class="input-group-addon">万元</span>
+                            </div>
+                            <div class="col-md-12 col-sm-12" id="pkSellPrice_totalPrice_tie" style="text-align: center">
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkSellPrice_unitPrice">单位价格
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group">
+                                <input type="text" id="pkSellPrice_unitPrice" name="pkSellPrice.unitPrice"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <span class="input-group-addon">元/平米</span>
+                            </div>
+                            <div class="col-md-12 col-sm-12" id="pkSellPrice_unitPrice_tie" style="text-align: center">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <hr>
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>房源基本信息</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="item form-group">
+                            <input hidden id="pkSellRoomBasic_pkSellRoomBasic" name="pkSellRoomBasic.pkSellRoomBasic">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomBasic_apartment">房屋户型
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkSellRoomBasic_apartment" name="pkSellRoomBasic.apartment"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomBasic_apartment_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkSellRoomBasic_floorNum">总楼层数
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group">
+                                <input type="text" id="pkSellRoomBasic_floorNum" name="pkSellRoomBasic.floorNum"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <span class="input-group-addon">层</span>
+                            </div>
+                            <div class="col-md-12 col-sm-12" id="pkSellRoomBasic_floorNum_tie" style="text-align: center">
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkSellRoomBasic_floor">所在楼层
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkSellRoomBasic_floor" name="pkSellRoomBasic.floor"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomBasic_floor_tie">
+                            </div>
+                        </div>
+                        <br><br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomBasic_builtUpArea">建筑面积
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group">
+                                <input type="text" id="pkSellRoomBasic_builtUpArea"
+                                       name="pkSellRoomBasic.builtUpArea"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <span class="input-group-addon">平米</span>
+                            </div>
+                            <div class="col-md-12 col-sm-12" id="pkSellRoomBasic_builtUpArea_tie" style="text-align: center">
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomBasic_structure">户型结构
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkSellRoomBasic_structure" name="pkSellRoomBasic.structure"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomBasic_structure_tie">
+                            </div>
+                        </div>
+                        <br><br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkSellRoomBasic_area">内套面积
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group">
+                                <input type="text" id="pkSellRoomBasic_area" name="pkSellRoomBasic.area"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <span class="input-group-addon">平米</span>
+                            </div>
+                            <div class="col-md-12 col-sm-12" id="pkSellRoomBasic_area_tie" style="text-align: center">
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkSellRoomBasic_type">建筑类型
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkSellRoomBasic_type" name="pkSellRoomBasic.type"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomBasic_type_tie">
+                            </div>
+                        </div>
+                        <br><br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomBasic_orientation">房屋朝向
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkSellRoomBasic_orientation"
+                                       name="pkSellRoomBasic.orientation"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomBasic_orientation_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkSellRoomBasic_building">建筑结构
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkSellRoomBasic_building" name="pkSellRoomBasic.building"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomBasic_building_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomBasic_decoration">装修情况
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkSellRoomBasic_decoration" name="pkSellRoomBasic.decoration"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomBasic_decoration_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkSellRoomBasic_ladder">梯户比例
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkSellRoomBasic_ladder" name="pkSellRoomBasic.ladder"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomBasic_ladder_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomBasic_propertyYears">产权年限
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group">
+                                <input type="text" id="pkSellRoomBasic_propertyYears"
+                                       name="pkSellRoomBasic.propertyYears"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <span class="input-group-addon">年</span>
+                            </div>
+                            <div class="col-md-12 col-sm-12" id="pkSellRoomBasic_propertyYears_tie" style="text-align: center">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <hr>
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>交易属性</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="item form-group">
+                            <input hidden id="pkSellRoomTransaction_pkSellRoomTransaction" name="pkSellRoomTransaction.pkSellRoomTransaction">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomTransaction_listingTs">挂牌时间
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkSellRoomTransaction_listingTs"
+                                       name="pkSellRoomTransaction.listingTs"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomTransaction_listingTs_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomTransaction_ownership">交易权属
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkSellRoomTransaction_ownership"
+                                       name="pkSellRoomTransaction.ownership"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomTransaction_ownership_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomTransaction_lastTs">上次交易
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkSellRoomTransaction_lastTs"
+                                       name="pkSellRoomTransaction.lastTs"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomTransaction_lastTs_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomTransaction_purpose">房屋用途
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkSellRoomTransaction_purpose"
+                                       name="pkSellRoomTransaction.purpose"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomTransaction_purpose_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomTransaction_years">房屋年限
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkSellRoomTransaction_years"
+                                       name="pkSellRoomTransaction.years"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomTransaction_years_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomTransaction_property">产权所属
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkSellRoomTransaction_property"
+                                       name="pkSellRoomTransaction.property"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomTransaction_property_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomTransaction_mortgage">抵押信息
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkSellRoomTransaction_mortgage"
+                                       name="pkSellRoomTransaction.mortgage"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomTransaction_mortgage_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomTransaction_permit">房本备件
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkSellRoomTransaction_permit"
+                                       name="pkSellRoomTransaction.permit"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomTransaction_permit_tie">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <hr>
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>本房源特色</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <input hidden id="pkSellRoomCharacteristic_pkSellRoomCharacteristic" name="pkSellRoomCharacteristic.pkSellRoomCharacteristic">
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomCharacteristic_core">核心卖点
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea id="pkSellRoomCharacteristic_core" name="pkSellRoomCharacteristic.core"
+                                          required="required"
+                                          class="form-control col-md-7 col-xs-12"></textarea>
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomCharacteristic_core_tie">
+                            </div>
+                        </div>
+                        <br><br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomCharacteristic_apartment">户型介绍
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea type="text" id="pkSellRoomCharacteristic_apartment"
+                                          name="pkSellRoomCharacteristic.apartment"
+                                          required="required"
+                                          class="form-control col-md-7 col-xs-12"></textarea>
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomCharacteristic_apartment_tie">
+                            </div>
+                        </div>
+                        <br><br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomCharacteristic_village">小区介绍
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea type="text" id="pkSellRoomCharacteristic_village"
+                                          name="pkSellRoomCharacteristic.village"
+                                          required="required"
+                                          class="form-control col-md-7 col-xs-12"></textarea>
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomCharacteristic_village_tie">
+                            </div>
+                        </div>
+                        <br><br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomCharacteristic_crowd">适宜人群
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea type="text" id="pkSellRoomCharacteristic_crowd"
+                                          name="pkSellRoomCharacteristic.crowd"
+                                          required="required"
+                                          class="form-control col-md-7 col-xs-12"></textarea>
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomCharacteristic_crowd_tie">
+                            </div>
+                        </div>
+                        <br><br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomCharacteristic_traffic">交通出行
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea type="text" id="pkSellRoomCharacteristic_traffic"
+                                          name="pkSellRoomCharacteristic.traffic"
+                                          required="required"
+                                          class="form-control col-md-7 col-xs-12"></textarea>
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomCharacteristic_traffic_tie">
+                            </div>
+                        </div>
+                        <br><br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomCharacteristic_surround">周边配套
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea type="text" id="pkSellRoomCharacteristic_surround"
+                                          name="pkSellRoomCharacteristic.surround"
+                                          required="required"
+                                          class="form-control col-md-7 col-xs-12"></textarea>
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomCharacteristic_surround_tie">
+                            </div>
+                        </div>
+                        <br><br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                   for="pkSellRoomCharacteristic_taxation">税费解析
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <textarea type="text" id="pkSellRoomCharacteristic_taxation"
+                                          name="pkSellRoomCharacteristic.taxation"
+                                          required="required"
+                                          class="form-control col-md-7 col-xs-12"></textarea>
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkSellRoomCharacteristic_taxation_tie">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="but" style="text-align: center">
+                    <div class='col-md-6 col-md-offset-3'>
+                        <button type='button' class='btn btn-danger' onclick='window.location.reload()'>取消</button>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <button type='button' class='btn btn-success' onclick='nextStep()'>下一步</button>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <br>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+@charset "utf-8";
+ul.nav-tabs{
+        width: 140px;
+        margin-top: 20px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.067);
+    }
+    ul.nav-tabs li{
+        margin: 0;
+        border-top: 1px solid #ddd;
+    }
+    ul.nav-tabs li:first-child{
+        border-top: none;
+    }
+    ul.nav-tabs li a{
+        margin: 0;
+        padding: 8px 16px;
+        border-radius: 0;
+    }
+    ul.nav-tabs li.active a, ul.nav-tabs li.active a:hover{
+        color: #fff;
+        background: #0088cc;
+        border: 1px solid #0088cc;
+    }
+    ul.nav-tabs li:first-child a{
+        border-radius: 4px 4px 0 0;
+    }
+    ul.nav-tabs li:last-child a{
+        border-radius: 0 0 4px 4px;
+    }
+    ul.nav-tabs.affix{
+        top: 30px; /* Set the top position of pinned element */
+    }
+#county_choose{
+	text-align: center;
+}
+#county_choose ul{
+	list-style: none;	
+}
+#county_choose ul li a{
+	color: #000000;
+}
+.room img{
+	height: 120px;
+	width: 160px;
+}
+.room_price{
+	float: right;
+	text-align: center;
+	padding-top: 30px;
+}
+.room_price_p {
+	 color: red;
+	font-weight: bolder;
+	font-size: 36px;
+	float: right
+}
+.room_price_span{
+	float:right;
+	margin-top: -10px;
+}
+.room_title h2{
+	margin: 0;
+	padding: 0;
+	margin-left: -10px;
+}
+#pa{
+	 text-align: center;
+	margin-top: 100px;
+}
+#bb{
+	height: 20px;
+}
+#bb div label{
+	font-size: 1px;
+}
