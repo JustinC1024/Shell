@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="utf-8">
+    <title>personal</title>
+    <link th:href="${#request.getContextPath()} + '/css/custom.css'" rel="stylesheet">
+    <link th:href="${#request.getContextPath()} + '/css/index1.css'" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" th:href="${#request.getContextPath()} + '/webjars/bootstrap/3.3.7/css/bootstrap.min.css'">
+    <script th:src="${#request.getContextPath()} + '/webjars/jquery/2.1.1/jquery.min.js'"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" th:inline="javascript">
+        // 路径
+        var base_path = [[${#httpServletRequest.getScheme() + '://' + #httpServletRequest.getServerName() + ":" + #httpServletRequest.getServerPort() + #httpServletRequest.getContextPath()}]];
+
+        // 页面初始化
+        $(window).load(
+            function () {
+                owner(1)
+            }
+        );
+
+        function owner(x){
+            $.ajax({
+                type: "post",
+                dataType: "json",
+                url: "/admin_data/owner",
+                data: {
+                    ts: null,
+                    nowPage: x
+                },
+                success: function (res) {
+                    if (res.length == 0){
+                        $("#page").hide()
+                        $("#bill").html("<div style='text-align: center'><h1>暂无信息</h1></div>")
+                    }else {
+                        $("#b").html("")
+                        for (var i = 0; i < res.length; i++) {
+                            var room
+                            var type
+                            var pk;
+                            if (!res[i].pkLeaseRoom) {
+                                room = res[i].pkSellRoom.title
+                                type = "sell"
+                                pk = res[i].pkSellRoom.pkSellRoom
+                            } else if (!res[i].pkSellRoom) {
+                                room = res[i].pkLeaseRoom.title
+                                type = "lease"
+                                pk = res[i].pkLeaseRoom.pkLeaseRoom
+                            }
+                            var status
+                            if (res[i].status == 0){
+                                status = '未认证'
+                            }else if(res[i].status == 1){
+                                status = '已认证'
+                            }
+                            $("#b").append(
+                                "<tr><th scope='row'>" +
+                                res[i].pkCustomer.account +
+                                "</th><td>" +
+                                room +
+                                "</td><td>" +
+                                status +
+                                "</td><td>" +
+                                res[i].ts +
+                                "</td><td>" +
+                                "<button type='button' class='btn btn-success' onclick='window.location.href=\"" +
+                                "/admin/detail/" +
+                                type +
+                                "/" +
+                                pk +
+                                "/" +
+                                res[i].status +
+                                "\"'>" +
+                                "详情</button></td></tr>"
+                            )
+                        }
+                        if (x === 1) {
+                            $.ajax({
+                                type: "post",
+                                url: "/admin_data/owner_page",
+                                data: {
+                                    ts: null
+                                },
+                                dataType: "json",
+                                success: function (res1) {
+                                    $("#total").val(res1)
+                                    if (res1 <= 1) {
+                                        $("#page").hide()
+                                    } else {
+                                        $("#page").show()
+                                    }
+                                },
+                                error: function () {
+                                    alert("error")
+                                }
+                            });
+                        }
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+        
+        $(document).ready(function () {
+            // 个人页面
+            $("#person").click(function () {
+                window.location.href = '/nom/personal/' + $("#u").text()
+            })
+            // 上一页
+            $("#up_page").click(function () {
+                var now = $("#now_page").text()
+                if (now > 1) {
+                    owner(--now)
+                    $("#now_page").text(now)
+                } else {
+                    alert("当前为首页")
+                }
+            });
+            // 下一页
+            $("#down_page").click(function () {
+                var now = $("#now_page").text()
+                if (now < $("#total").val()) {
+                    owner(++now)
+                    $("#now_page").text(now)
+                } else {
+                    alert("当前为尾页")
+                }
+            });
+        })
+    </script>
+</head>
+
+<body data-spy="scroll" data-target="#myScrollspy">
+<div class="container">
+    <div class="jumbotron">
+        <h1>广州房源信息系统</h1>
+    </div>
+    <div class="row">
+        <div class="col-xs-3" id="myScrollspy">
+            <ul class="nav nav-tabs nav-stacked nn" data-spy="affix" data-offset-top="125">
+                <li sec:authorize="hasRole('ADMIN')"><a href="/admin/user">账号管理</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a href="/admin/bill">订单管理</a></li>
+                <li sec:authorize="hasRole('ADMIN')" class="active"><a href="/admin/info">信息管理</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a href="/admin/village">小区</a></li>
+                <li sec:authorize="isAuthenticated()">
+                    <a id="person"><span class="glyphicon glyphicon-ok-circle" style="color: green"></span>
+                        <span sec:authentication="name" id="u"></span></a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-9">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>信息管理</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content" id="bill">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>顾客</th>
+                            <th>房屋</th>
+                            <th>状态</th>
+                            <th>时间</th>
+                            <th>编辑</th>
+                        </tr>
+                        </thead>
+                        <tbody id="b"></tbody>
+                    </table>
+                </div>
+                <input hidden id="total">
+                <div class="col-lg-12" style="margin-top: 0px; text-align: center">
+                    <div>
+                        <ul class="pagination pagination-lg" id="page">
+                            <li><a href="#" id="up_page">&laquo;</a></li>
+                            <li><a href="#" id="now_page">1</a></li>
+                            <li><a href="#" id="down_page">&raquo;</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

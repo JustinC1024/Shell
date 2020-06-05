@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+<head>
+	<meta charset="utf-8">
+	<title>lease-detail</title>
+	<link th:href="${#request.getContextPath()} + '/css/custom.css'" rel="stylesheet">
+	<link th:href="${#request.getContextPath()} + '/css/second_hand_detail.css'" rel="stylesheet" type="text/css">
+	<link th:href="${#request.getContextPath()} + '/css/index.css'" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" th:href="${#request.getContextPath()} + '/webjars/bootstrap/3.3.7/css/bootstrap.min.css'">
+	<script th:src="${#request.getContextPath()} + '/webjars/jquery/2.1.1/jquery.min.js'"></script>
+	<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<script type="text/javascript" th:inline="javascript">
+    // 路径
+    var base_path = [[${#httpServletRequest.getScheme() + '://' + #httpServletRequest.getServerName() + ":" + #httpServletRequest.getServerPort() + #httpServletRequest.getContextPath()}]];
+    // 页面初始化
+    $(window).load(
+        function () {
+            initHtml()
+            clerk()
+        }
+    );
+
+    function initHtml() {
+        $.ajax({
+            type: "post",
+            url: "/visitor_data/lease_detail",
+            data: {
+                pk: [[${pk}]]
+            },
+            dataType: "json",
+            success: function (res) {
+                $("#lease_img_b").html("")
+                $("#lease_img").html("")
+                for (var i = 0; i < res.imgs.length; i++) {
+                    if (i == 0) {
+                        $("#lease_img_b").append(
+                            "<li data-target='#myCarousel' data-slide-to='0' class='active' ></li>"
+                        )
+                        $("#lease_img").append("<div class='item active'><img src='" +
+                            base_path + "/visitor_data/room_img/" + res.imgs[i].pkRoomImg +
+                            "'></div>")
+                    } else {
+                        $("#lease_img_b").append(
+                            "<li data-target='#myCarousel' data-slide-to='" + i + "'></li>"
+                        )
+                        $("#lease_img").append("<div class='item'><img src='" +
+                            base_path + "/visitor_data/room_img/" + res.imgs[i].pkRoomImg +
+                            "'></div>")
+                    }
+                }
+                $("#pp").html(
+                    "<div><h2>" +
+                    res.pkLeasePrice.rent +
+					"<small>元/月</small></h2></div>"
+                )
+				if (res.mode == 0) {
+                    $("#ld1").html("<p>整租</p><p>")
+				}else {
+                    $("#ld1").html("<p>合租</p><p>")
+				}
+                $("#ld1").append(
+                    res.apartment +
+					"&nbsp;&nbsp;" +
+					res.pkLeaseRoomBasic.area +
+                    "平米</p><p>" +
+                    res.pkLeaseRoomBasic.orientation +
+					"&nbsp;&nbsp;" +
+					res.pkLeaseRoomBasic.floor +
+					"/共" +
+                    res.pkLeaseRoomBasic.floorNum +
+					"层</p>"
+                )
+				$("#ld2").html(
+				    "<tr><th scope='row'>面积</th><td>" +
+                    res.pkLeaseRoomBasic.area +
+					"平米</td><td class='col-lg-1'>|</td><td class='st'>朝向</td><td>" +
+                    res.pkLeaseRoomBasic.orientation +
+					"</td></tr>" +
+                    "<tr><th scope='row'>维护</th><td>" +
+                    res.updateTs +
+					"</td><td class='col-lg-1'>|</td><td class='st'>入住</td><td>" +
+                    res.pkLeaseRoomBasic.checkIn +
+					"</td></tr>" +
+                    "<tr><th scope='row'>楼层</th><td>" +
+                    res.pkLeaseRoomBasic.floor +
+					"/共" +
+                    res.pkLeaseRoomBasic.floorNum +
+                    "层</td><td class='col-lg-1'>|</td><td class='st'>电梯</td><td>" +
+                    res.pkLeaseRoomBasic.ladder +
+					"</td></tr>" +
+                    "<tr><th scope='row'>车位</th><td>" +
+                    res.pkLeaseRoomBasic.parking +
+					"</td><td class='col-lg-1'>|</td><td class='st'>用水</td><td>" +
+                    res.pkLeaseRoomBasic.water +
+					"</td></tr>" +
+                    "<tr><th scope='row'>用电</th><td>" +
+                    res.pkLeaseRoomBasic.electricity +
+					"</td><td class='col-lg-1'>|</td><td class='st'>燃气</td><td>" +
+                    res.pkLeaseRoomBasic.gas +
+					"</td></tr>" +
+                    "<tr><th scope='row'>采暖</th><td>" +
+                    res.pkLeaseRoomBasic.heating +
+					"</td><td class='col-lg-1'>|</td><td class='st'>租期</td><td>" +
+                    res.pkLeaseRoomBasic.term +
+					"</td></tr>" +
+                    "<tr><th scope='row'>看房</th><td>" +
+                    res.pkLeaseRoomBasic.inspection +
+					"</td><td class='col-lg-1'></td><td class='st'></td><td></td></tr>"
+				)
+				var washing = (res.pkLeaseRoomMating.washing == 0)?'无':'有'
+				var air = (res.pkLeaseRoomMating.air == 0)?'无':'有'
+				var wardrobe = (res.pkLeaseRoomMating.wardrobe == 0)?'无':'有'
+				var television = (res.pkLeaseRoomMating.television == 0)?'无':'有'
+				var fridge = (res.pkLeaseRoomMating.fridge == 0)?'无':'有'
+				var heater = (res.pkLeaseRoomMating.heater == 0)?'无':'有'
+				var bed = (res.pkLeaseRoomMating.bed == 0)?'无':'有'
+				var heating = (res.pkLeaseRoomMating.heating == 0)?'无':'有'
+				var broadband = (res.pkLeaseRoomMating.broadband == 0)?'无':'有'
+				var gas = (res.pkLeaseRoomMating.gas == 0)?'无':'有'
+				$("#ld3").append(
+					"<tr><th scope='row'>洗衣机</th><td>" +
+                    washing +
+					"</td><td class='col-lg-1'>|</td>" +
+                    "<td class='st'>空调</td><td>" +
+                    air +
+					"</td></tr>" +
+                    "<tr><th scope='row'>衣柜</th><td>" +
+                    wardrobe +
+					"</td><td class='col-lg-1'>|</td>" +
+                    "<td class='st'>电视</td><td>" +
+                    television +
+					"</td></tr>" +
+                    "<tr><th scope='row'>冰箱</th><td>" +
+                    fridge +
+					"</td><td class='col-lg-1'>|</td>" +
+					"<td class='st'>热水器</td><td>" +
+                    heater +
+					"</td></tr>" +
+                    "<tr><th scope='row'>床</th><td>" +
+                    bed +
+					"</td><td class='col-lg-1'>|</td>" +
+                    "<td class='st'>暖气</td><td>" +
+                    heating +
+					"</td></tr>" +
+                    "<tr><th scope='row'>宽带</th><td>" +
+                    broadband +
+					"</td><td class='col-lg-1'>|</td>" +
+                    "<td class='st'>天然气</td><td>" +
+					gas +
+					"</td></tr>"
+				)
+				$("#ld4").html(
+				    "<tr><th>" +
+                    res.pkLeasePrice.payment +
+					"</th><td>" +
+                    res.pkLeasePrice.rent +
+					"</td><td>" +
+                    res.pkLeasePrice.deposit +
+					"</td></tr>"
+				)
+				$("#ldt").html("<h2 style='font-weight: bolder'>" + res.title)
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    // 点击事件
+    $(document).ready(function(){
+        // 登录
+        $("#doLogin").click(function () {
+            if ($("#name").val() != "" && $("#name").val() != null &&
+                $("#pw").val() != "" && $("#pw").val() != null) {
+                login()
+            }else {
+                alert("账号和密码不能空")
+            }
+        })
+        // 注册
+        $("#register").click(function () {
+            window.location.href='/visitor/register';
+        })
+        // 个人信息
+        $("#person").click(function () {
+            window.location.href = '/customer/personal/' + $("#u").text()
+        })
+        // 下订
+        $("#book").click(function () {
+            book()
+        })
+    })
+    // 登录
+    function login() {
+        $.ajax({
+            type: "post",
+            url: "/cus/login",
+            data: $("#loginForm").serialize(),
+            success: function (res) {
+                if (!res){
+                    alert("账号或密码有误")
+                }else if (!res.username) {
+                    alert("账号或密码有误")
+                } else {
+                    alert("登录成功")
+                    window.location.reload()
+                }
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    };
+    // 业务员
+    function clerk() {
+        $.ajax({
+            dataType: "json",
+            data: {},
+            type: "post",
+            url: "/customer_data/clerk",
+            success: function (res) {
+                if(res.length > 0){
+                    var f = true
+                    for (var i = 0; i < res.length; i++){
+                        if(f){
+                            $("#clerk").append(
+                                "<div class='item active clerk1'>" +
+                                "<input type='text' hidden value='" +
+                                res[i].pkClerk +
+                                "' />" +
+                                "<ul class='list-unstyled msg_list'><li>" +
+                                "<a><span class='image'><img src='" +
+                                base_path + "/customer_data/img/" + res[i].img +
+                                "' alt='img' style='height: 58px;width: 58px;'/></span><span><span>" +
+                                res[i].name +
+                                "</span></span><span class='message'>" +
+                                res[i].introduction +
+                                "</span></a></li></ul></div>"
+                            )
+                            f = false
+                        }else {
+                            $("#clerk").append(
+                                "<div class='item clerk1'>" +
+                                "<input type='text' hidden value='" +
+                                res[i].pkClerk +
+                                "' />" +
+                                "<ul class='list-unstyled msg_list'><li>" +
+                                "<a><span class='image'><img src='" +
+                                base_path + "/customer_data/img/" + res[i].img +
+                                "' alt='img' style='height: 58px;width: 58px;'/></span><span><span>" +
+                                res[i].name +
+                                "</span></span><span class='message'>" +
+                                res[i].introduction +
+                                "</span></a></li></ul></div>"
+                            )
+                        }
+
+                    }
+                }
+            }
+        })
+    }
+
+    // 预定
+    function book() {
+        $.ajax({
+            dataType: "json",
+            data: {
+                pkClerk: $(".item.active.clerk1 input").val(),
+                pkCustomer: $("#u").text(),
+                pkRoom: [[${pk}]],
+                type: "lease"
+            },
+            type: "post",
+            url: "/customer_data/book",
+            success: function (res) {
+                if(res == 0){
+                    alert("预定失败")
+                }else {
+                    alert("预定成功")
+                }
+                window.location.reload()
+            },
+            error: function () {
+                alert("error")
+            }
+        })
+    }
+</script>
+
+<body data-spy="scroll" data-target="#myScrollspy">
+<div class="container">
+   <div class="jumbotron">
+        <h1>广州房源信息系统</h1>
+    </div>
+    <div class="row">
+        <div class="col-xs-3" id="myScrollspy">
+            <ul class="nav nav-tabs nav-stacked" data-spy="affix" data-offset-top="125">
+				<li><a href="/visitor/index">二手房</a></li>
+				<li class="active"><a href="/visitor/lease">租房</a></li>
+				<li><a href="/visitor/village">小区</a></li>
+				<li sec:authorize="!isAuthenticated()"><a data-toggle="modal" data-target="#addModal">登录/注册</a></li>
+				<li sec:authorize="isAuthenticated()">
+					<a id="person"><span class="glyphicon glyphicon-ok-circle" style="color: green"></span>
+						<span sec:authentication="name" id="u"></span></a>
+				</li>
+            </ul>
+        </div>
+        <div class="col-xs-9">
+			<div id="ldt"></div>
+			<hr>
+			<div style="height: 300px;">
+				<div class="col-lg-7">
+					<div id="myCarousel" class="carousel slide"  data-interval="false" style="height: 262px;">
+						<!-- 轮播（Carousel）指标 -->
+						<ol class="carousel-indicators" id="lease_img_b"></ol>
+						<!-- 轮播（Carousel）项目 -->
+						<div class="carousel-inner" style="height: 262px;" id="lease_img"></div>
+						<!-- 轮播（Carousel）导航 -->
+						<a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+							<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+							<span class="sr-only">Previous</span>
+						</a>
+						<a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+							<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+							<span class="sr-only">Next</span>
+						</a>
+					</div> 
+				</div>
+				<div class="col-lg-5">
+					<div id="pp" style="height: 36px;text-align: center;"></div>
+					<hr>
+					<div>
+						<div class="col-lg-4" id="t3">
+							<p>租赁方式</p>
+							<p>房屋类型</p>
+							<p>朝向楼层</p>
+						</div>
+						<div class="col-lg-8"  style="text-align: center;" id="ld1"></div>
+					</div>
+					<div style="height: 100px;"></div>
+					<div style="text-align: center;" sec:authorize="isAuthenticated()">
+						<button type="button" class="btn btn-success btn-lg"  data-toggle="modal" data-target="#clerkModal">预约看房</button>
+					</div>
+					<div style="text-align: center;" sec:authorize="!isAuthenticated()">
+						<button type="button" class="btn btn-success btn-lg"  data-toggle="modal" data-target="#addModal">预约看房</button>
+					</div>
+				</div>
+			</div>
+			<hr>
+			<div class="x_panel">
+            	<div class="x_title">
+                	<h2>房屋信息</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                	<table class="table">
+						<thead>
+                        	<tr>
+								<th>基本信息</th>
+                          		<th></th>
+								<th></th>
+								<th></th>
+								<th></th>
+                        	</tr>
+                      	</thead>
+                      	<tbody id="ld2"></tbody>
+                	</table>
+				</div>
+				<div>
+                	<div class="x_content">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>配套设施</th>
+									<th></th>
+									<th></th>
+									<th></th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody id="ld3"></tbody>
+						</table>
+					</div>
+            	</div>
+			</div>
+            <hr>
+			<div class="x_panel">
+            	<div class="x_title">
+                	<h2>费用详情</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                	<table class="table">
+						<thead>
+                        	<tr>
+								<th>付款方式</th>
+                          		<th>租金<span style="color:darkgray;">（元/月）</span></th>
+								<th>押金<span style="color:darkgray;">（元）</span></th>
+                        	</tr>
+                      	</thead>
+                      	<tbody id="ld4"></tbody>
+                	</table>
+				</div>
+            </div>
+        </div>
+    </div>
+</div>
+<<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header" style="text-align: center;">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h1 class="modal-title" id="myModalLabel" style="font-weight: bolder">登录</h1>
+
+			</div>
+			<div class="col-lg-2" style="height: 160px;margin-top: 20px;"></div>
+			<form id="loginForm">
+				<div class="modal-body col-lg-8" style="height: 160px;margin-top: 20px;">
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">账号</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" name="username" id="name">
+						</div>
+					</div>
+					<br><br><br>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">密码</label>
+						<div class="col-sm-10">
+							<input type="password" class="form-control" name="password" id="pw">
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-2" style="height: 160px;margin-top: 20px;"></div>
+				<div style="text-align: center;height: 260px;">
+					<button type="button" class="btn btn-primary" id="doLogin">登录</button>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<button type="button" class="btn btn-default" id="register">注册</button>
+				</div>
+			</form>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+</div>
+<div class="modal fade carousel slide" id="clerkModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+	 aria-hidden="true" data-interval="false" style="height: 600px;">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header" style="text-align: center;">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h1 class="modal-title" style="font-weight: bolder">选择业务员</h1>
+			</div>
+			<div class="col-lg-2" style="height: 160px;margin-top: 20px;">
+				<a class="carousel-control" href="#clerkModal" role="button" data-slide="prev"
+				   style="margin-bottom: 30px;margin-left: 30px;">
+					<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+					<span class="sr-only">Previous</span>
+				</a>
+			</div>
+			<div class="modal-body col-lg-8" style="height: 160px;margin-top: 20px;">
+				<div class="carousel-inner" style="height: 160px;" id="clerk"></div>
+			</div>
+			<div class="col-lg-2" style="height: 160px;margin-top: 20px;">
+				<a class="carousel-control" href="#clerkModal" role="button" data-slide="next"
+				   style="margin-bottom: 30px;margin-left: 30px;">
+					<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+					<span class="sr-only">Next</span>
+				</a>
+			</div>
+			<div class="modal-footer" style="text-align: center;height: 260px;">
+				<button type="button" class="btn btn-primary" id="book">下订单</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+</div>
+</body>
+</html>

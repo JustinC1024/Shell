@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.record.BillMapper">
+
+    <insert id="doBill" parameterType="bill">
+        INSERT INTO cmp_bill (pk_bill, pk_support, pk_lease_room, pk_sell_room, pk_customer, pk_clerk, status,
+        dr, ts) VALUES (
+          #{pkBill}, #{pkSupport.pkSupport}, #{pkLeaseRoom.pkLeaseRoom}, #{pkSellRoom.pkSellRoom},
+          #{pkCustomer.pkCustomer}, #{pkClerk.pkClerk}, 0, 0, #{ts}
+        )
+    </insert>
+
+    <update id="updateBill" parameterType="bill">
+        UPDATE cmp_bill
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <otherwise>
+                    status = #{status}, result = #{result}
+                </otherwise>
+            </choose>
+        </set>
+        <where>pk_bill = #{pkBill}</where>
+    </update>
+
+    <select id="getListBill" parameterType="bill" resultType="bill">
+        SELECT
+        b.pk_bill, b.status, b.ts,
+        s.pk_support AS 'pkSupport.pkSupport', s.title AS 'pkSupport.title',
+        lr.pk_lease_room AS 'pkLeaseRoom.pkLeaseRoom', lr.title AS 'pkLeaseRoom.title',
+        sr.pk_sell_room AS 'pkSellRoom.pkSellRoom', sr.title AS 'pkSellRoom.title',
+        c.pk_customer AS 'pkCustomer.pkCustomer', c.name AS 'pkCustomer.name',
+        c.account AS 'pkCustomer.account',
+        cl.pk_clerk AS 'pkClerk.pkClerk', cl.name AS 'pkClerk.name', cl.account AS 'pkClerk.account'
+        FROM
+        cmp_bill b
+        LEFT JOIN db_support s ON b.pk_support = s.pk_support
+        LEFT JOIN db_lease_room lr ON b.pk_lease_room = lr.pk_lease_room
+        LEFT JOIN db_sell_room sr ON b.pk_sell_room = sr.pk_sell_room
+        LEFT JOIN db_customer c ON b.pk_customer = c.pk_customer
+        LEFT JOIN db_clerk cl ON b.pk_clerk = cl.pk_clerk
+        <where>
+            b.dr = 0
+            <if test="status != null">
+                AND b.status = #{status}
+            </if>
+            <if test="pkSupport != null">
+                AND s.title LIKE #{pkSupport.title}
+            </if>
+            <if test="pkLeaseRoom != null">
+                AND lr.title LIKE #{pkLeaseRoom.title}
+            </if>
+            <if test="pkSellRoom != null">
+                AND sr.title LIKE #{pkSellRoom.title}
+            </if>
+            <if test="pkCustomer != null">
+                AND c.account LIKE #{pkCustomer.account}
+            </if>
+            <if test="pkClerk != null">
+                AND cl.account LIKE #{pkClerk.account}
+            </if>
+        </where>
+        <if test='ts == "asc"'>
+            ORDER BY b.ts ASC
+        </if>
+        <if test='ts == "desc"'>
+            ORDER BY b.ts DESC
+        </if>
+    </select>
+
+    <select id="getBillByPk" parameterType="String" resultType="bill">
+        SELECT
+        b.status, b.remake, b.result, b.ts,
+        s.pk_support AS 'pkSupport.pkSupport', s.title AS 'pkSupport.title',
+        lr.pk_lease_room AS 'pkLeaseRoom.pkLeaseRoom', lr.title AS 'pkLeaseRoom.title',
+        sr.pk_sell_room AS 'pkSellRoom.pkSellRoom', sr.title AS 'pkSellRoom.title',
+        c.pk_customer AS 'pkCustomer.pkCustomer', c.name AS 'pkCustomer.name',
+        cl.pk_clerk AS 'pkClerk.pkClerk', cl.name AS 'pkClerk.name'
+        FROM
+        cmp_bill b
+        LEFT JOIN db_support s ON b.pk_support = s.pk_support
+        LEFT JOIN db_lease_room lr ON b.pk_lease_room = lr.pk_lease_room
+        LEFT JOIN db_sell_room sr ON b.pk_sell_room = sr.pk_sell_room
+        LEFT JOIN db_customer c ON b.pk_customer = c.pk_customer
+        LEFT JOIN db_clerk cl ON b.pk_clerk = cl.pk_clerk
+        <where>b.dr = 0 AND b.pk_bill = #{pk}</where>
+    </select>
+
+</mapper>

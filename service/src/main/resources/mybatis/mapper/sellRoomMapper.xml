@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.building.SellRoomMapper">
+    
+    <insert id="doSellRoom" parameterType="sellRoom">
+        INSERT INTO db_sell_room (pk_sell_room, title, county, location, public_ts, update_ts, pk_sell_price,
+        pk_sell_room_transaction, pk_sell_room_basic, pk_sell_room_characteristic, pk_village, ts, dr, status) VALUES (
+          #{pkSellRoom}, #{title}, #{county}, #{location}, #{publicTs}, #{ts}, #{pkSellPrice.pkSellPrice},
+          #{pkSellRoomTransaction.pkSellRoomTransaction}, #{pkSellRoomBasic.pkSellRoomBasic},
+          #{pkSellRoomCharacteristic.pkSellRoomCharacteristic}, #{pkVillage.pkVillage}, #{ts}, 1, 0
+        )
+    </insert>
+
+    <update id="updateSellRoom" parameterType="sellRoom">
+        UPDATE db_sell_room
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <otherwise>
+                    title = #{title}, county = #{county}, location = #{location}, update_ts = #{updateTs},
+                    pk_village = #{pkVillage.pkVillage}, status = 0
+                </otherwise>
+            </choose>
+        </set>
+        <where>pk_sell_room = #{pkSellRoom}</where>
+    </update>
+
+    <select id="getListSellRoom" parameterType="sellRoom" resultType="sellRoom">
+        SELECT
+          r.pk_sell_room, r.title, r.location, r.update_ts,
+          p.total_price AS 'pkSellPrice.totalPrice', p.unit_price AS 'pkSellPrice.unitPrice',
+          b.apartment AS 'pkSellRoomBasic.apartment', b.floor_num AS 'pkSellRoomBasic.floorNum',
+          b.built_up_area AS 'pkSellRoomBasic.builtUpArea',
+          b.orientation AS 'pkSellRoomBasic.orientation',
+          i.pk_room_img AS 'img.pkRoomImg'
+        FROM db_sell_room r
+          LEFT JOIN db_sell_price p ON r.pk_sell_price = p.pk_sell_price
+          LEFT JOIN db_sell_room_basic b ON r.pk_sell_room_basic = b.pk_sell_room_basic
+          LEFT JOIN db_room_img i ON r.pk_sell_room = i.pk_room
+        <where>
+            i.ind = 1 AND r.dr = 0 AND p.dr = 0 AND b.dr = 0 AND i.dr = 0 AND r.status = 1
+            <if test="county != null">
+                AND r.county = #{county}
+            </if>
+            <if test="pkSellRoomBasic != null">
+                <if test="pkSellRoomBasic.apartment != null">
+                    AND b.apartment LIKE #{pkSellRoomBasic.apartment}
+                </if>
+                <if test="pkSellRoomBasic.builtUpArea != null">
+                    AND b.built_up_area LIKE #{pkSellRoomBasic.builtUpArea}
+                </if>
+            </if>
+            <if test="title != null">
+                AND r.title LIKE #{title}
+            </if>
+        </where>
+        <choose>
+            <when test="updateTs != null">
+                <if test='updateTs == "asc"'>
+                    ORDER BY r.public_ts ASC
+                </if>
+                <if test='updateTs == "desc"'>
+                    ORDER BY r.public_ts DESC
+                </if>
+            </when>
+            <when test="pkSellPrice.totalPrice != null">
+                <if test='pkSellPrice.totalPrice == 1'>
+                    ORDER BY p.total_price ASC
+                </if>
+                <if test='pkSellPrice.totalPrice == 0'>
+                    ORDER BY p.total_price DESC
+                </if>
+            </when>
+        </choose>
+    </select>
+
+    <select id="getSellRoomByPk" parameterType="String" resultMap="detailSellRoom">
+        SELECT
+          sr.pk_sell_room, sr.title, sr.county, sr.location, sr.update_ts,
+          sp.pk_sell_price AS 'pkSellPrice.pkSellPrice', sp.total_price AS 'pkSellPrice.totalPrice',
+          sp.unit_price AS 'pkSellPrice.unitPrice',
+          srt.pk_sell_room_transaction AS 'pkSellRoomTransaction.pkSellRoomTransaction',
+          srt.listing_ts AS 'pkSellRoomTransaction.listingTs',
+          srt.ownership AS 'pkSellRoomTransaction.ownership', srt.last_ts AS 'pkSellRoomTransaction.lastTs',
+          srt.purpose AS 'pkSellRoomTransaction.purpose', srt.years AS 'pkSellRoomTransaction.years',
+          srt.property AS 'pkSellRoomTransaction.property', srt.mortgage AS 'pkSellRoomTransaction.mortgage',
+          srt.permit AS 'pkSellRoomTransaction.permit',
+          srb.pk_sell_room_basic AS 'pkSellRoomBasic.pkSellRoomBasic',
+          srb.apartment AS 'pkSellRoomBasic.apartment', srb.floor AS 'pkSellRoomBasic.floor',
+          srb.floor_num AS 'pkSellRoomBasic.floorNum', srb.built_up_area AS 'pkSellRoomBasic.builtUpArea',
+          srb.area AS 'pkSellRoomBasic.area', srb.type AS 'pkSellRoomBasic.type',
+          srb.orientation AS 'pkSellRoomBasic.orientation', srb.building AS 'pkSellRoomBasic.building',
+          srb.decoration AS 'pkSellRoomBasic.decoration', srb.structure AS 'pkSellRoomBasic.structure',
+          srb.ladder AS 'pkSellRoomBasic.ladder', srb.property_years AS 'pkSellRoomBasic.propertyYears',
+          src.pk_sell_room_characteristic AS 'pkSellRoomCharacteristic.pkSellRoomCharacteristic',
+          src.core AS 'pkSellRoomCharacteristic.core', src.apartment AS 'pkSellRoomCharacteristic.apartment',
+          src.village AS 'pkSellRoomCharacteristic.village', src.crowd AS 'pkSellRoomCharacteristic.crowd',
+          src.situation AS 'pkSellRoomCharacteristic.situation',
+          src.traffic AS 'pkSellRoomCharacteristic.traffic',
+          src.surround AS 'pkSellRoomCharacteristic.surround',
+          src.taxation AS 'pkSellRoomCharacteristic.taxation',
+          srco.pk_sell_room_compartment AS 'pkSellRoomCompartment.pkSellRoomCompartment',
+          sci.pk_sell_compartment_info AS 'pkSellRoomCompartment.compartments.pkSellCompartmentInfo',
+          sci.area AS 'pkSellRoomCompartment.compartments.area',
+          sci.direction AS 'pkSellRoomCompartment.compartments.direction',
+          sci.windows AS 'pkSellRoomCompartment.compartments.windows',
+          sci.spare1 AS 'pkSellRoomCompartment.compartments.spare1',
+          v.pk_village AS 'pkVillage.pkVillage', v.title AS 'pkVillage.title',
+          ri.pk_room_img, ri.ind
+        FROM db_sell_room sr
+          LEFT JOIN db_sell_price sp ON sr.pk_sell_price = sp.pk_sell_price
+          LEFT JOIN db_sell_room_transaction srt ON sr.pk_sell_room_transaction = srt.pk_sell_room_transaction
+          LEFT JOIN db_sell_room_basic srb ON sr.pk_sell_room_basic = srb.pk_sell_room_basic
+          LEFT JOIN db_sell_room_characteristic src ON sr.pk_sell_room_characteristic = src.pk_sell_room_characteristic
+          LEFT JOIN db_sell_room_compartment srco ON sr.pk_sell_room_compartment = srco.pk_sell_room_compartment
+          LEFT JOIN db_sell_compartment_info sci ON sci.pk_sell_room_compartment = sr.pk_sell_room_compartment
+          LEFT JOIN db_village v ON sr.pk_village = v.pk_village
+          LEFT JOIN db_room_img ri ON sr.pk_sell_room = ri.pk_room
+        <where>
+            sr.pk_sell_room = #{pk} AND sr.dr = 0 AND sp.dr = 0 AND srt.dr = 0 AND srb.dr = 0 AND src.dr = 0 AND
+            srco.dr = 0 AND sci.dr = 0  AND v.dr = 0 AND ri.dr = 0
+        </where>
+    </select>
+
+    <resultMap id="detailSellRoom" type="sellRoom">
+        <result property="pkSellRoom" column="pk_sell_room"/>
+        <result property="title" column="title"/>
+        <result property="county" column="county"/>
+        <result property="location" column="location"/>
+        <result property="updateTs" column="update_ts"/>
+        <association property="pkSellPrice" javaType="sellPrice">
+            <result property="pkSellPrice" column="pkSellPrice.pkSellPrice"/>
+            <result property="totalPrice" column="pkSellPrice.totalPrice"/>
+            <result property="unitPrice" column="pkSellPrice.unitPrice"/>
+        </association>
+        <association property="pkSellRoomTransaction" javaType="sellRoomTransaction">
+            <result property="pkSellRoomTransaction"
+                    column="pkSellRoomTransaction.pkSellRoomTransaction"/>
+            <result property="listingTs" column="pkSellRoomTransaction.listingTs"/>
+            <result property="ownership" column="pkSellRoomTransaction.ownership"/>
+            <result property="lastTs" column="pkSellRoomTransaction.lastTs"/>
+            <result property="purpose" column="pkSellRoomTransaction.purpose"/>
+            <result property="years" column="pkSellRoomTransaction.years"/>
+            <result property="property" column="pkSellRoomTransaction.property"/>
+            <result property="mortgage" column="pkSellRoomTransaction.mortgage"/>
+            <result property="permit" column="pkSellRoomTransaction.permit"/>
+        </association>
+        <association property="pkSellRoomBasic" javaType="sellRoomBasic">
+            <result property="pkSellRoomBasic" column="pkSellRoomBasic.pkSellRoomBasic"/>
+            <result property="apartment" column="pkSellRoomBasic.apartment"/>
+            <result property="floor" column="pkSellRoomBasic.floor"/>
+            <result property="floorNum" column="pkSellRoomBasic.floorNum"/>
+            <result property="builtUpArea" column="pkSellRoomBasic.builtUpArea"/>
+            <result property="area" column="pkSellRoomBasic.area"/>
+            <result property="type" column="pkSellRoomBasic.type"/>
+            <result property="orientation" column="pkSellRoomBasic.orientation"/>
+            <result property="building" column="pkSellRoomBasic.building"/>
+            <result property="decoration" column="pkSellRoomBasic.decoration"/>
+            <result property="structure" column="pkSellRoomBasic.structure"/>
+            <result property="ladder" column="pkSellRoomBasic.ladder"/>
+            <result property="propertyYears" column="pkSellRoomBasic.propertyYears"/>
+        </association>
+        <association property="pkSellRoomCharacteristic" javaType="sellRoomCharacteristic">
+            <result property="pkSellRoomCharacteristic"
+                    column="pkSellRoomCharacteristic.pkSellRoomCharacteristic"/>
+            <result property="core" column="pkSellRoomCharacteristic.core"/>
+            <result property="apartment" column="pkSellRoomCharacteristic.apartment"/>
+            <result property="village" column="pkSellRoomCharacteristic.village"/>
+            <result property="crowd" column="pkSellRoomCharacteristic.crowd"/>
+            <result property="situation" column="pkSellRoomCharacteristic.situation"/>
+            <result property="traffic" column="pkSellRoomCharacteristic.traffic"/>
+            <result property="surround" column="pkSellRoomCharacteristic.surround"/>
+            <result property="taxation" column="pkSellRoomCharacteristic.taxation"/>
+        </association>
+        <association property="pkSellRoomCompartment" javaType="sellRoomCompartment">
+            <result property="pkSellRoomCompartment"
+                    column="pkSellRoomCompartment.pkSellRoomCompartment"/>
+            <collection property="compartments" ofType="sellCompartmentInfo">
+                <result property="pkSellCompartmentInfo"
+                        column="pkSellRoomCompartment.compartments.pkSellCompartmentInfo"/>
+                <result property="area" column="pkSellRoomCompartment.compartments.area"/>
+                <result property="direction" column="pkSellRoomCompartment.compartments.direction"/>
+                <result property="windows" column="pkSellRoomCompartment.compartments.windows"/>
+                <result property="spare1" column="pkSellRoomCompartment.compartments.spare1"/>
+            </collection>
+        </association>
+        <association property="pkVillage" javaType="village">
+            <result property="title" column="pkVillage.title"/>
+            <result property="pkVillage" column="pkVillage.pkVillage"/>
+        </association>
+        <collection property="imgs" ofType="roomImg">
+            <result property="pkRoomImg" column="pk_room_img"/>
+            <result property="ind" column="ind"/>
+        </collection>
+    </resultMap>
+
+    <update id="updateCompartment" parameterType="sellRoom">
+        UPDATE db_sell_room
+        <set>
+            dr = 0, pk_sell_room_compartment = #{pkSellRoomCompartment.pkSellRoomCompartment}
+        </set>
+        <where>pk_sell_room = #{pkSellRoom}</where>
+    </update>
+
+    <select id="getSellRoomByTitle" parameterType="String" resultType="sellRoom">
+        SELECT * FROM db_sell_room
+        <where>
+            dr = 0 AND title = #{title}
+        </where>
+    </select>
+
+    <update id="updateSellRoomStatus" parameterType="sellRoom">
+        UPDATE db_sell_room
+        <set>
+            status = #{status}
+        </set>
+        <where>pk_sell_room = #{pkSellRoom}</where>
+    </update>
+
+</mapper>

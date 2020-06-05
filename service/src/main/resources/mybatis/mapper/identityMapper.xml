@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.record.IdentityMapper">
+
+    <insert id="doIdentity" parameterType="identity">
+        INSERT INTO cmp_identity (pk_identity, pk_customer, status, dr, ts) VALUES (
+          #{pkIdentity}, #{pkCustomer.pkCustomer}, 0, 0, #{ts}
+        )
+    </insert>
+
+    <update id="updateIdentity" parameterType="identity">
+        UPDATE cmp_identity
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <otherwise>
+                    status = #{status}, pk_clerk = #{pkClerk.pkClerk}
+                </otherwise>
+            </choose>
+        </set>
+        <where>pk_customer = #{pkCustomer.pkCustomer}</where>
+    </update>
+
+    <select id="getListIdentity" parameterType="identity" resultType="identity">
+        SELECT
+          i.pk_identity, i.status, i.ts,
+          c.pk_customer AS 'pkCustomer.pkCustomer', c.name AS 'pkCustomer.name',
+          c.account AS 'pkCustomer.account', c.identity AS 'pkCustomer.identity',
+          cl.pk_clerk AS 'pkClerk.pkClerk', cl.name AS 'pkClerk.name'
+        FROM
+          cmp_identity i
+          LEFT JOIN db_customer c ON i.pk_customer = c.pk_customer
+          LEFT JOIN db_clerk  cl ON i.pk_clerk = cl.pk_clerk
+        <where>
+            i.dr = 0
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="pkCustomer != null">
+                AND c.name LIKE #{pkCustomer.name}
+            </if>
+            <if test="pkClerk != null">
+                AND cl.name LIKE #{pkClerk.name}
+            </if>
+        </where>
+        <if test='ts == "asc"'>
+            ORDER BY i.ts ASC
+        </if>
+        <if test='ts == "desc"'>
+            ORDER BY i.ts DESC
+        </if>
+    </select>
+
+    <select id="getIdentityByCustomer" parameterType="String" resultType="identity">
+        SELECT i.* FROM cmp_identity i LEFT JOIN db_customer c ON i.pk_customer = c.pk_customer
+        <where>i.dr = 0 AND c.dr = 0 AND c.account = #{account}</where>
+    </select>
+
+</mapper>

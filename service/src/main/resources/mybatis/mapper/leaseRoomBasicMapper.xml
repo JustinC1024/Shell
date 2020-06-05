@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.building.LeaseRoomBasicMapper">
+
+    <insert id="doLeaseRoomBasic" parameterType="leaseRoomBasic">
+        INSERT INTO db_lease_room_basic (pk_lease_room_basic, area, orientation, maintain, check_in, floor, floor_num,
+        ladder, parking, water, electricity, gas, term, heating, inspection, ts, dr) VALUES (
+          #{pkLeaseRoomBasic}, #{area}, #{orientation}, #{maintain}, #{checkIn}, #{floor}, #{floorNum}, #{ladder},
+          #{parking}, #{water}, #{electricity}, #{gas}, #{term}, #{heating}, #{inspection}, #{ts}, 0
+        )
+    </insert>
+
+    <update id="updateLeaseRoomBasic" parameterType="leaseRoomBasic">
+        UPDATE db_lease_room_basic
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <otherwise>
+                    area = #{area}, orientation = #{orientation}, check_in = #{checkIn},
+                    floor = #{floor}, floor_num = #{floorNum}, ladder = #{ladder}, parking = #{parking},
+                    water = #{water}, electricity = #{electricity}, gas = #{gas}, term = #{term}, heating = #{heating},
+                    inspection = #{inspection}
+                </otherwise>
+            </choose>
+            </set>
+        <where>pk_lease_room_basic = #{pkLeaseRoomBasic}</where>
+    </update>
+
+</mapper>

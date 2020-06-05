@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="utf-8">
+    <title>new-village-detail</title>
+    <link th:href="${#request.getContextPath()} + '/css/custom.css'" rel="stylesheet">
+    <link th:href="${#request.getContextPath()} + '/css/second_hand_detail.css'" rel="stylesheet" type="text/css">
+    <link th:href="${#request.getContextPath()} + '/css/index.css'" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" th:href="${#request.getContextPath()} + '/webjars/bootstrap/3.3.7/css/bootstrap.min.css'">
+    <script th:src="${#request.getContextPath()} + '/webjars/jquery/2.1.1/jquery.min.js'"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" th:href="${#request.getContextPath()} + '/css/webuploader.css'"/>
+    <link rel="stylesheet" type="text/css" th:href="${#request.getContextPath()} + '/css/style.css'"/>
+    <script type="text/javascript" th:src="${#request.getContextPath()} + '/js/webuploader.js'"></script>
+    <script type="text/javascript" th:src="${#request.getContextPath()} + '/js/upload.js'"></script>
+</head>
+<script type="text/javascript" th:inline="javascript">
+    // 路径
+    var base_path = [[${#httpServletRequest.getScheme() + '://' + #httpServletRequest.getServerName() + ":" + #httpServletRequest.getServerPort() + #httpServletRequest.getContextPath()}]];
+    // 点击事件
+    $(document).ready(function () {
+        // 个人页面
+        $("#person").click(function () {
+            window.location.href = '/nom/personal/' + $("#u").text()
+        })
+        $("#title").blur(function () {
+            if ($("#title").val() == "") {
+                $("#title_tie").html("<p style='color: red'>请输入小区名称</p>")
+            } else {
+                $.ajax({
+                    url: "/admin_data/village_title",
+                    type: "post",
+                    dataType: "json",
+                    data: {title: $("#title").val()},
+                    success: function (res) {
+                        if (res == 0) {
+                            $("#title_tie").html("")
+                        } else {
+                            $("#title_tie").html("<p style='color: red'>该名称已存在</p>")
+                        }
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                })
+
+            }
+        });
+        $("#consult").blur(function () {
+            if ($("#consult").val() != "") {
+                if ($("#consult").val().search(/^(\-|\+)?\d+(\.\d+)?$/)) {
+                    $("#consult_tie").html("<p style='color: red'>只能填数字</p>")
+                } else {
+                    $("#consult_tie").html("")
+                }
+            }
+        })
+        $("#buildingNum").blur(function () {
+            if ($("#buildingNum").val() != "") {
+                if ($("#buildingNum").val().search(/^(\-|\+)?\d+(\.\d+)?$/)) {
+                    $("#buildingNum_tie").html("<p style='color: red'>只能填数字</p>")
+                } else {
+                    $("#buildingNum_tie").html("")
+                }
+            }
+        })
+        $("#consult").blur(function () {
+            if ($("#roomNum").val() != "") {
+                if ($("#roomNum").val().search(/^(\-|\+)?\d+(\.\d+)?$/)) {
+                    $("#roomNum_tie").html("<p style='color: red'>只能填数字</p>")
+                } else {
+                    $("#roomNum_tie").html("")
+                }
+            }
+        })
+    })
+
+    // 提交
+    function update() {
+        if (
+            $("#title").val() === "" ||
+            $("#introduction").val() === "" ||
+            $("#consult").val() === "" ||
+            $("#location").val() === "" ||
+            $("#county").val() === "" ||
+            $("#buildingType").val() === "" ||
+            $("#property").val() === "" ||
+            $("#company").val() === "" ||
+            $("#developer").val() === "" ||
+            $("#buildingNum").val() === "" ||
+            $("#roomNum").val() === "" ||
+            !$("#img input").val() ||
+            $("#title_tie").val() !== "" ||
+            $("#consult_tie").val() !== "" ||
+            $("#buildingNum_tie").val() !== "" ||
+            $("#roomNum_tie").val() !== ""
+        ) {
+            alert("请认真检查填写内容")
+        } else {
+            $.ajax({
+                type: "post",
+                url: "/admin_data/do_village",
+                data: $("#village_form").serialize(),
+                success: function (res) {
+                    if (res == 0) {
+                        alert("新增失败")
+                    } else {
+                        alert("新增成功")
+                        window.location.href = "/admin/village"
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+    }
+</script>
+</head>
+
+<body data-spy="scroll" data-target="#myScrollspy">
+<div class="container">
+    <div class="jumbotron">
+        <h1>广州房源信息系统</h1>
+    </div>
+    <div class="row">
+        <div class="col-xs-3" id="myScrollspy">
+            <ul class="nav nav-tabs nav-stacked" data-spy="affix" data-offset-top="125">
+                <li sec:authorize="hasRole('ADMIN')"><a href="/admin/user">账号管理</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a href="/admin/bill">订单管理</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a href="/admin/info">信息管理</a></li>
+                <li sec:authorize="hasRole('ADMIN')" class="active"><a href="/admin/village">小区</a></li>
+                <li sec:authorize="isAuthenticated()">
+                    <a id="person"><span class="glyphicon glyphicon-ok-circle" style="color: green"></span>
+                        <span sec:authentication="name" id="u"></span></a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-9">
+            <div id="add_img">
+                <div id="wrapper">
+                    <div id="container">
+                        <!--头部，相册选择和格式选择-->
+                        <div id="uploader">
+                            <div class="queueList">
+                                <div id="dndArea" class="placeholder">
+                                    <div id="filePicker"></div>
+                                    <p>或将照片拖到这里，单次最多可选300张</p>
+                                </div>
+                            </div>
+                            <div class="statusBar" style="display:none;">
+                                <div class="info"></div>
+                                <div class="btns">
+                                    <div id="filePicker2"></div>
+                                    <div class="uploadBtn">开始上传</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="x_panel">
+                <form class="form-horizontal form-label-left" novalidate id="village_form">
+                    <div class="x_content">
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="title">小区名称
+                                <span class="required" style="color: red;">*</span>
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="title" name="title"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-12 col-sm-12" id="title_tie" style="text-align: center">
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="introduction">小区简介
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="introduction" name="introduction"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="introduction_tie">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="county">所在区县
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="county" name="county"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="county_tie">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="location">具体位置
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="location" name="location"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="location_tie">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="consult">参考均价
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group">
+                                <input type="text" id="consult" name="consult"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <span class="input-group-addon">元/平米</span>
+                            </div>
+                            <div class="col-md-12 col-sm-12" id="consult_tie" style="text-align: center">
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="buildingType">建筑类型
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="buildingType" name="buildingType"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <div class="col-md-3 col-sm-3" id="buildingType_tie">
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="property">物业费用
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="property" name="property"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="property_tie">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="company">物业公司
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="company" name="company"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="company_tie">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="developer">开发商
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="developer" name="developer"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="developer_tie">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="buildingNum">楼栋总数
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group">
+                                <input type="text" id="buildingNum" name="buildingNum"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <span class="input-group-addon">栋</span>
+                            </div>
+                            <div class="col-md-12 col-sm-12" id="buildingNum_tie" style="text-align: center">
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="roomNum">房屋总数
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group">
+                                <input type="text" id="roomNum" name="roomNum"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <span class="input-group-addon">户</span>
+                            </div>
+                            <div class="col-md-12 col-sm-12" id="roomNum_tie" style="text-align: center">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="img" hidden></div>
+                </form>
+            </div>
+            <br>
+            <br>
+            <div id="but" style="text-align: center">
+                <div class='col-md-6 col-md-offset-3'>
+                    <button type='button' class='btn btn-success' onclick='update()'>提交</button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button type='button' class='btn btn-primary' onclick='window.history.back(-1)'>取消</button>
+                </div>
+            </div>
+            <br>
+            <br>
+            <br>
+        </div>
+    </div>
+</div>
+</body>
+</html>

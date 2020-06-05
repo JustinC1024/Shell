@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="utf-8">
+    <title>personal</title>
+    <link th:href="${#request.getContextPath()} + '/css/custom.css'" rel="stylesheet">
+    <link th:href="${#request.getContextPath()} + '/css/index1.css'" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" th:href="${#request.getContextPath()} + '/webjars/bootstrap/3.3.7/css/bootstrap.min.css'">
+    <script th:src="${#request.getContextPath()} + '/webjars/jquery/2.1.1/jquery.min.js'"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" th:inline="javascript">
+        // 路径
+        var base_path = [[${#httpServletRequest.getScheme() + '://' + #httpServletRequest.getServerName() + ":" + #httpServletRequest.getServerPort() + #httpServletRequest.getContextPath()}]];
+
+        // 页面初始化
+        $(window).load(
+            function () {
+                id(1)
+                clerk(1)
+                $.ajax({
+                    type: "post",
+                    dataType: "json",
+                    url: "/admin_data/jurisdiction",
+                    data: null,
+                    success: function (res) {
+                        for (var i = 0; i < res.length; i++) {
+                            $("#jur").append(
+                                "<option value='" +
+                                res[i].pkJurisdiction +
+                                "'>" +
+                                res[i].name +
+                                "</option>"
+                            )
+                        }
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                })
+            }
+        );
+
+        // 客户
+        function id(y) {
+            $.ajax({
+                type: "post",
+                dataType: "json",
+                url: "/admin_data/identity",
+                data: {
+                    ts: null,
+                    nowPage: y
+                },
+                success: function (res) {
+                    if (res.length == 0) {
+                        $("#page1").hide()
+                        $("#tab_content1").html("<div style='text-align: center'><h1>暂无信息</h1></div>")
+                    } else {
+                        $("#u1").html("")
+                        for (var i = 0; i < res.length; i++) {
+                            var identity
+                            if (!res[i].pkCustomer.identity) {
+                                identity = '未填写'
+                            } else {
+                                identity = res[i].pkCustomer.identity
+                            }
+                            var status
+                            if (res[i].status == 0) {
+                                status = '未认证'
+                            } else if (res[i].status == 1) {
+                                status = '已认证'
+                            }
+
+                            $("#u1").append(
+                                "<tr><th scope='row'>" +
+                                res[i].pkCustomer.account +
+                                "</th><td>" +
+                                identity +
+                                "</td><td>" +
+                                status +
+                                "</td><td>" +
+                                "<button type='button' class='btn btn-success' data-toggle='modal' data-target='#cusModal' onclick='customer(\"" +
+                                res[i].pkCustomer.pkCustomer +
+                                "\", " +
+                                res[i].status +
+                                ")'>详情</button>" +
+                                "</td></tr>"
+                            )
+                        }
+                        if (y === 1) {
+                            $.ajax({
+                                type: "post",
+                                url: "/admin_data/identity_page",
+                                data: {
+                                    ts: null
+                                },
+                                dataType: "json",
+                                success: function (res1) {
+                                    $("#total1").val(res1)
+                                    if (res1 <= 1) {
+                                        $("#page1").hide()
+                                    } else {
+                                        $("#page1").show()
+                                    }
+                                },
+                                error: function () {
+                                    alert("error")
+                                }
+                            });
+                        }
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+
+        function customer(x, y) {
+            $.ajax({
+                type: "post",
+                url: "/admin_data/customer",
+                dataType: "json",
+                data: {pk: x},
+                success: function (res) {
+                    $("#cus_a").text(res.account)
+                    $("#cus_p").text(res.password)
+                    $("#cus_m").text(res.mail)
+                    $("#cus_n").text(res.name)
+                    $("#cus_i").text(res.identity)
+                    $("#cus_pk").text(res.pkCustomer)
+                    if( y == 0){
+                        $("#cus_ok").show()
+                    }else {
+                        $("#cus_ok").hide()
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+
+        function update_customer() {
+            $.ajax({
+                type: "post",
+                url: "/admin_data/update_identity",
+                dataType: "json",
+                data: {
+                    pkCustomer: $("#cus_pk").text(),
+                    clerkName: $("#u").text()
+                },
+                success: function (res) {
+                    if (res == 0) {
+                        alert("认证失败")
+                    } else {
+                        alert("认证成功")
+                    }
+                    window.location.reload()
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+
+        // 员工
+        function clerk(y) {
+            $.ajax({
+                type: "post",
+                dataType: "json",
+                url: "/admin_data/clerk",
+                data: {
+                    pk: $("#u").text(),
+                    nowPage: y
+                },
+                success: function (res) {
+                    if (res.length == 0) {
+                        $("#page2").hide()
+                        $("#tab_content2").html("<div style='text-align: center'><h1>暂无信息</h1></div>")
+                    } else {
+                        $("#u2").html("")
+                        for (var i = 0; i < res.length; i++)
+                            $("#u2").append(
+                                "<tr><th scope='row'>" +
+                                res[i].account +
+                                "</th><td>" +
+                                res[i].password +
+                                "</td><td>" +
+                                res[i].pkJurisdiction.name +
+                                "</td><td>" +
+                                "<div class='btn-group' data-toggle='buttons'>" +
+                                "<label class='btn btn-primary' onclick='password(\"" +
+                                res[i].pkClerk +
+                                "\")'  data-toggle='modal' data-target='#pwModal'>" +
+                                "<input type='checkbox'> 修改</label>" +
+                                "<label class='btn btn-danger'onclick='dele(\"" +
+                                res[i].pkClerk +
+                                "\")'>" +
+                                "<input type='checkbox'> 删除</label></div></td></tr>"
+                            )
+                        if (y === 1) {
+                            $.ajax({
+                                type: "post",
+                                url: "/admin_data/clerk_page",
+                                data: {
+                                    ts: null
+                                },
+                                dataType: "json",
+                                success: function (res1) {
+                                    $("#total2").val(res1)
+                                    if (res1 <= 1) {
+                                        $("#page2").hide()
+                                    } else {
+                                        $("#page2").show()
+                                    }
+                                },
+                                error: function () {
+                                    alert("error")
+                                }
+                            });
+                        }
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+
+        function password(x) {
+            $("#pk").val(x);
+        }
+
+        function update() {
+            $.ajax({
+                type: "post",
+                url: "/nom_data/update_password",
+                data: {
+                    pk: $("#pk").val(),
+                    password: $("#Oldpassword").val()
+                },
+                success: function (res) {
+                    alert(res)
+                    window.location.reload()
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+
+        function dele(x) {
+            $.ajax({
+                type: "post",
+                url: "/admin_data/delete_clerk",
+                data: {
+                    pk: x
+                },
+                success: function (res) {
+                    if (res == 0) {
+                        alert("删除失败")
+                    } else {
+                        alert("删除成功")
+                    }
+                    window.location.reload()
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+
+        function d() {
+            $.ajax({
+                type: "post",
+                url: "/admin_data/do_clerk",
+                data: {
+                    account: $("#account").val(),
+                    password: $("#pw").val(),
+                    jur: $("#jur").val()
+                },
+                success: function (res) {
+                    if (res == 0) {
+                        alert("增加成功")
+                    } else {
+                        alert("增加成功")
+                    }
+                    window.location.reload()
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+
+        // 点击
+        $(document).ready(function () {
+            // 个人页面
+            $("#person").click(function () {
+                window.location.href = '/nom/personal/' + $("#u").text()
+            })
+            // 上一页
+            $("#up_page1").click(function () {
+                var now = $("#now_page1").text()
+                if (now > 1) {
+                    id(--now)
+                    $("#now_page1").text(now)
+                } else {
+                    alert("当前为首页")
+                }
+            });
+            // 下一页
+            $("#down_page1").click(function () {
+                var now = $("#now_page1").text()
+                if (now < $("#total1")) {
+                    id(++now)
+                    $("#now_page1").text(now)
+                } else {
+                    alert("当前为尾页")
+                }
+            });
+            // 上一页
+            $("#up_page2").click(function () {
+                var now = $("#now_page2").text()
+                if (now > 1) {
+                    clerk(--now)
+                    $("#now_page2").text(now)
+                } else {
+                    alert("当前为首页")
+                }
+            });
+            // 下一页
+            $("#down_page2").click(function () {
+                var now = $("#now_page2").text()
+                if (now < $("#total2").val()) {
+                    clerk(++now)
+                    $("#now_page2").text(now)
+                } else {
+                    alert("当前为尾页")
+                }
+            });
+            // 增加
+            $("#new_clerk").click(function () {
+                if ($("#account_tie").text() == '' && $('#pw').val() != "" && $("#account").val() != "") {
+                    d()
+                }else {
+                    alert("请自行检查")
+                }
+            })
+            // 修改
+            $("#pwCheck").click(function () {
+                update()
+            })
+            // 认证
+            $("#cus_ok").click(function () {
+                update_customer()
+            })
+            // 去重
+            $("#account").blur(function () {
+                $.ajax({
+                    type: "post",
+                    url: "/admin_data/account",
+                    data: {account: $("#account").val()},
+                    success: function (res) {
+                        if (res == 0) {
+                            $("#account_tie").text("")
+                        } else {
+                            $("#account_tie").text("重复账号")
+                        }
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                })
+            });
+        })
+
+    </script>
+</head>
+
+<body data-spy="scroll" data-target="#myScrollspy">
+<div class="container">
+    <div class="jumbotron">
+        <h1>广州房源信息系统</h1>
+    </div>
+    <div class="row">
+        <div class="col-xs-3" id="myScrollspy">
+            <ul class="nav nav-tabs nav-stacked nn" data-spy="affix" data-offset-top="125">
+                <li sec:authorize="hasRole('ADMIN')" class="active"><a href="/admin/user">账号管理</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a href="/admin/bill">订单管理</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a href="/admin/info">信息管理</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a href="/admin/village">小区</a></li>
+                <li sec:authorize="isAuthenticated()">
+                    <a id="person"><span class="glyphicon glyphicon-ok-circle" style="color: green"></span>
+                        <span sec:authentication="name" id="u"></span></a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-9">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-bars"></i>&nbsp;&nbsp;&nbsp;账号管理</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+
+                        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                                <li role="presentation" class="active"><a href="#tab_content1" id="home-tab" role="tab"
+                                                                          data-toggle="tab" aria-expanded="true">用户</a>
+                                </li>
+                                <li role="presentation" class=""><a href="#tab_content2" role="tab" id="profile-tab"
+                                                                    data-toggle="tab" aria-expanded="false">员工</a></li>
+                            </ul>
+                            <div id="myTabContent" class="tab-content">
+                                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1"
+                                     aria-labelledby="home-tab">
+                                    <div class="x_panel">
+                                        <div class="x_content">
+                                            <table class="table">
+                                                <thead>
+                                                <tr>
+                                                    <th>账号</th>
+                                                    <th>身份证</th>
+                                                    <th>账号情况</th>
+                                                    <th>编辑</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="u1"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <input id="total1" hidden>
+                                    <div class="col-lg-12" style="margin-top: 0px; text-align: center">
+                                        <div>
+                                            <ul class="pagination pagination-lg" id="page1">
+                                                <li><a href="#" id="up_page1">&laquo;</a></li>
+                                                <li><a href="#" id="now_page1">1</a></li>
+                                                <li><a href="#" id="down_page1">&raquo;</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content2"
+                                     aria-labelledby="profile-tab">
+                                    <div class="x_panel">
+                                        <div class="x_content">
+                                            <div class="x_title">
+                                                <button type="button" class="btn btn-success" style="float: right"
+                                                        data-toggle="modal" data-target="#addModal">
+                                                    <span class="glyphicon glyphicon-plus"></span>新增
+                                                </button>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <table class="table">
+                                                <thead>
+                                                <tr>
+                                                    <th>账号</th>
+                                                    <th>密码</th>
+                                                    <th>角色</th>
+                                                    <th>编辑</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="u2"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <input hidden id="#total2">
+                                    <div class="col-lg-12" style="margin-top: 0px; text-align: center">
+                                        <div>
+                                            <ul class="pagination pagination-lg" id="page2">
+                                                <li><a href="#" id="up_page2">&laquo;</a></li>
+                                                <li><a href="#" id="now_page2">1</a></li>
+                                                <li><a href="#" id="down_page2">&raquo;</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="text-align: center;">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h1 class="modal-title" id="myModalLabel" style="font-weight: bolder">新增</h1>
+            </div>
+            <div class="col-lg-2" style="height: 200px;margin-top: 20px;"></div>
+            <form id="loginForm">
+                <div class="modal-body col-lg-8" style="height: 200px;margin-top: 20px;">
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">账号</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="account" id="account">
+                        </div>
+                    </div>
+
+                    <br><br>
+                    <div class="form-group">
+                        <label for="jur" class="col-sm-2 control-label">权限</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" name="jurisdiction" id="jur"></select>
+                        </div>
+                    </div>
+                    <br><br>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">密码</label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" name="password" id="pw">
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="col-lg-2" style="height: 200px;margin-top: 20px;">
+                    <div style="text-align: center"><p style="color: red" id="account_tie"></p></div>
+                </div>
+                <div style="text-align: center;height: 280px;">
+                    <button type="button" class="btn btn-primary" id="new_clerk">提交</button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button type="button" class="btn btn-default" data-dismiss="modal" aria-hidden="true">取消</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<div class="modal fade" id="pwModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="modal">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="col-lg-2" style="margin-top: 20px;"></div>
+            <div class="modal-body col-lg-8" style="margin-top: 20px;">
+                <input id="pk" hidden/>
+                <div class="form-group">
+                    <label for="Oldpassword" class="col-sm-2 control-label">密码</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="Oldpassword">
+                        <span class="input-group-btn">
+						<button class="btn btn-default" type="button" id="pwCheck">
+							<span class="glyphicon glyphicon-arrow-right"></span>
+						</button>
+					</span>
+                    </div><!-- /input-group -->
+                </div>
+                <div style="text-align: center">
+                    <p style="color: red" id="pwTie"></p>
+                </div>
+            </div>
+            <div class="col-lg-2" style="margin-top: 20px;"></div>
+            <div class="modal-footer" style="text-align: center;">
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<div class="modal fade" id="cusModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="text-align: center;">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="col-lg-2" style="height: 200px;margin-top: 20px;"></div>
+            <div class="modal-body col-lg-8" style="height: 200px;margin-top: 20px;">
+                <div class="form-group">
+                    <label class="col-sm-3">账号</label>
+                    <div class="col-sm-9"><p id="cus_a"></p></div>
+                </div>
+                <br>
+                <div class="form-group">
+                    <label class="col-sm-3">密码</label>
+                    <div class="col-sm-9"><p id="cus_p"></p></div>
+                </div>
+                <br>
+                <div class="form-group">
+                    <label class="col-sm-3">邮箱</label>
+                    <div class="col-sm-9"><p id="cus_m"></p></div>
+                </div>
+                <br>
+                <div class="form-group">
+                    <label class="col-sm-3">名字</label>
+                    <div class="col-sm-9"><p id="cus_n"></p></div>
+                </div>
+                <br>
+                <div class="form-group">
+                    <label class="col-sm-3">身份证</label>
+                    <div class="col-sm-9"><p id="cus_i"></p></div>
+                </div>
+                <p id="cus_pk" hidden></p>
+            </div>
+            <div class="col-lg-2" style="height: 200px;margin-top: 20px;"></div>
+            <div class="modal-footer" style="text-align: center;height: 280px;">
+                <button type="button" class="btn btn-primary" id="cus_ok">认证</button>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-default" data-dismiss="modal" aria-hidden="true">取消</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+</body>
+</html>

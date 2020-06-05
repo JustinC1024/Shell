@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="utf-8">
+    <title>personal</title>
+    <link th:href="${#request.getContextPath()} + '/css/custom.css'" rel="stylesheet">
+    <link th:href="${#request.getContextPath()} + '/css/index1.css'" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" th:href="${#request.getContextPath()} + '/webjars/bootstrap/3.3.7/css/bootstrap.min.css'">
+    <script th:src="${#request.getContextPath()} + '/webjars/jquery/2.1.1/jquery.min.js'"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" th:inline="javascript">
+        // 路径
+        var base_path = [[${#httpServletRequest.getScheme() + '://' + #httpServletRequest.getServerName() + ":" + #httpServletRequest.getServerPort() + #httpServletRequest.getContextPath()}]];
+        // 页面初始化
+        $(window).load(
+            function () {
+                initHtml()
+                bill(1)
+                owner(1)
+                // 认证
+                $.ajax({
+                    type: "post",
+                    data: {account: [[${account}]]},
+                    url: "/customer_data/identity",
+                    dataType: "json",
+                    success: function (res) {
+                        if (!res){
+                            $("#tab_content3").html("<div style='text-align: center'><p style='color: red'>操作此模块需要身份认证</p></div>")
+                        }else if (res.status == 0){
+                            $("#tab_content3").html("<div style='text-align: center'><p style='color: red'>操作此模块需要身份认证</p></div>")
+                        }
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                })
+            }
+        );
+        var account;
+        var mail;
+        var name;
+        var identity;
+
+        function initHtml() {
+            $.ajax({
+                type: "post",
+                data: {account: [[${account}]]},
+                url: "/customer_data/customer",
+                dataType: "json",
+                success: function (res) {
+                    account = res.account
+                    mail = (res.mail == null) ? "" : res.mail
+                    name = (res.name == null) ? "" : res.name
+                    identity = (res.identity == null) ? "" : res.identity
+                    $("#pkCustomer").val(res.pkCustomer)
+                    $("#account").val(res.account)
+                    if (res.mail != null && res.mail != "") {
+                        $("#email").val(res.mail)
+                    }
+                    if (res.name != null && res.name != "") {
+                        $("#name").val(res.name)
+                    }
+                    if (res.identity != null && res.identity != "") {
+                        $("#idCard").val(res.identity)
+                    }
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+
+        }
+
+        // 订单
+        function bill(x) {
+            $.ajax({
+                type: "post",
+                data: {
+                    account: [[${account}]],
+                    nowPage: x
+                },
+                url: "/customer_data/bill",
+                dataType: "json",
+                success: function (res) {
+                    if (res.length == 0) {
+                        $("#page1").hide()
+                        $("#bill").html("<div style='text-align: center'><h1>暂无信息</h1></div>")
+                    } else {
+                        $("#b").html("")
+                        for (var i = 0; i < res.length; i++) {
+                            var room
+                            if (!res[i].pkLeaseRoom) {
+                                room = res[i].pkSellRoom.title
+                            } else if (!res[i].pkSellRoom) {
+                                room = res[i].pkLeaseRoom.title
+                            }
+                            var status
+                            if (res[i].status == 0) {
+                                status = '待处理'
+                            } else if (res[i].status == 1) {
+                                status = '处理中'
+                            } else if (res[i].status == 2) {
+                                status = '拒绝受理'
+                            } else if (res[i].status == 1) {
+                                status = '完成 '
+                            }
+
+                            $("#b").append(
+                                "<tr><th scope='row'>" +
+                                res[i].pkBill +
+                                "</th><td>" +
+                                room +
+                                "</td><td>" +
+                                res[i].pkClerk.account +
+                                "</td><td>" +
+                                status +
+                                "</td><td>" +
+                                res[i].ts +
+                                "</td></tr>"
+                            )
+                        }
+                        if (x === 1) {
+                            $.ajax({
+                                type: "post",
+                                url: "/customer_data/bill_page",
+                                data: {
+                                    account: [[${account}]]
+                                },
+                                dataType: "json",
+                                success: function (res1) {
+                                    $("#total1").val(res1)
+                                    if (res1 <= 1) {
+                                        $("#page1").hide()
+                                    } else {
+                                        $("#page1").show()
+                                    }
+                                },
+                                error: function () {
+                                    alert("error")
+                                }
+                            });
+                        }
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+
+        // 我的
+        function owner(x) {
+            $.ajax({
+                type: "post",
+                dataType: "json",
+                url: "/customer_data/owner",
+                data: {
+                    account: [[${account}]],
+                    nowPage: x
+                },
+                success: function (res) {
+                    if (res.length == 0) {
+                        $("#page2").hide()
+                        $("#owner").html("<div style='text-align: center'><h1>暂无信息</h1></div>")
+                    } else {
+                        $("#b").html("")
+                        for (var i = 0; i < res.length; i++) {
+                            var room
+                            var type
+                            var pk;
+                            var m
+                            if (!res[i].pkLeaseRoom) {
+                                room = res[i].pkSellRoom.title
+                                type = "sell"
+                                m = '出售'
+                                pk = res[i].pkSellRoom.pkSellRoom
+                            } else if (!res[i].pkSellRoom) {
+                                room = res[i].pkLeaseRoom.title
+                                type = "lease"
+                                m = '出租'
+                                pk = res[i].pkLeaseRoom.pkLeaseRoom
+                            }
+                            var status
+                            if (res[i].status == 0) {
+                                status = '未认证'
+                            } else if (res[i].status == 1) {
+                                status = '已认证'
+                            }
+                            $("#o").append(
+                                "<tr><th scope='row'>" +
+                                room +
+                                "</th><td>" +
+                                m +
+                                "</td><td>" +
+                                status +
+                                "</td><td>" +
+                                "<div class='btn-group' data-toggle='buttons'>" +
+                                "<label class='btn btn-primary' onclick='window.location.href=\"" +
+                                "/customer/detail/" +
+                                type +
+                                "/" +
+                                pk +
+                                "\"'>" +
+                                "<input type='checkbox'> 详情</label>" +
+                                "<label class='btn btn-danger'onclick='dele(\"" +
+                                type +
+                                "\",\"" +
+                                pk +
+                                "\")'>" +
+                                "<input type='checkbox'> 删除</label></div></td></tr>"
+                            )
+                        }
+                        if (x === 1) {
+                            $.ajax({
+                                type: "post",
+                                url: "/customer_data/owner_page",
+                                data: {
+                                    account: [[${account}]]
+                                },
+                                dataType: "json",
+                                success: function (res1) {
+                                    $("#total2").val(res1)
+                                    if (res1 <= 1) {
+                                        $("#page2").hide()
+                                    } else {
+                                        $("#page2").show()
+                                    }
+                                },
+                                error: function () {
+                                    alert("error")
+                                }
+                            });
+                        }
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+
+        // 删除
+        function dele(x, y) {
+            if (x === 'sell') {
+                $.ajax({
+                    type: "post",
+                    dataType: "json",
+                    url: "/customer_data/delete_sell_room",
+                    data: {pk: y},
+                    success: function (res) {
+                        if (res === 0) {
+                            alert("删除失败")
+                        } else {
+                            alert("删除成功")
+                        }
+                        window.location.reload()
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                })
+            }
+            if (x === 'lease') {
+                $.ajax({
+                    type: "post",
+                    dataType: "json",
+                    url: "/customer_data/delete_lease_room",
+                    data: {pk: y},
+                    success: function (res) {
+                        if (res === 0) {
+                            alert("删除失败")
+                        } else {
+                            alert("删除成功")
+                        }
+                        window.location.reload()
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                })
+            }
+        }
+
+        $(document).ready(function () {
+            $("#account").blur(function () {
+                if ($("#account").val().search("[0-9]{11}")) {
+                    $("#account_tie").text("请输入正确的电话号码")
+                } else {
+                    $("#account_tie").text("")
+                }
+            });
+            $("#email").blur(function () {
+                if ($("#email").val() == "") {
+                    $("#email_tie").text("")
+                } else {
+                    if ($("#email").val().search(/^\w+@[a-zA-Z0-9]{2,10}(?:\.[a-z]{2,4}){1,3}$/)) {
+                        $("#email_tie").text("请输入正确的邮箱")
+                    } else {
+                        $("#email_tie").text("")
+                    }
+                }
+            });
+            $("#name").blur(function () {
+                if ($("#name").val() == "") {
+                    $("#name_tie").text("")
+                } else {
+                    if ($("#name").val().search(/^[\u4E00-\u9FA5]{2,4}$/)) {
+                        $("#name_tie").text("请输入真实的名字")
+                    } else {
+                        $("#name_tie").text("")
+                    }
+                }
+            });
+            $("#idCard").blur(function () {
+                if ($("#idCard").val() == "") {
+                    $("#idCard_tie").text("")
+                } else {
+                    if ($("#idCard").val().search(/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/)) {
+                        $("#idCard_tie").text("请输入真实的身份证")
+                    } else {
+                        $("#idCard_tie").text("")
+                    }
+                }
+            });
+            // 旧密码
+            $("#pwCheck").click(function () {
+                if ($("#Oldpassword").val() == "" || $("#Oldpassword") == null) {
+                    $("#pwTie").text("请输入密码")
+                } else {
+                    checkPw1()
+                }
+            })
+            $("#password").blur(function () {
+                if ($("#password2").val() == "") {
+                    $("#password_tie").text("")
+                } else {
+                    if ($("#password").val() == $("#password2").val()) {
+                        $("#password_tie").text("")
+                    } else {
+                        $("#password_tie").text("两次密码不一致")
+                    }
+                }
+            });
+            $("#password2").blur(function () {
+                if ($("#password").val() == $("#password2").val()) {
+                    $("#password_tie").text("")
+                } else {
+                    $("#password_tie").text("两次密码不一致")
+                }
+            });
+            // 上一页
+            $("#up_page1").click(function () {
+                var now = $("#now_page1").text()
+                if (now > 1) {
+                    bill( --now)
+                    $("#now_page1").text(now)
+                } else {
+                    alert("当前为首页")
+                }
+            });
+            // 下一页
+            $("#down_page1").click(function () {
+                var now = $("#now_page1").text()
+                if (now < $("#total1").val()) {
+                    bill(++now)
+                    $("#now_page1").text(now)
+                } else {
+                    alert("当前为尾页")
+                }
+            });
+            // 上一页
+            $("#up_page2").click(function () {
+                var now = $("#now_page2").text()
+                if (now > 1) {
+                    owner(--now)
+                    $("#now_page2").text(now)
+                } else {
+                    alert("当前为首页")
+                }
+            });
+            // 下一页
+            $("#down_page2").click(function () {
+                var now = $("#now_page2").text()
+                if (now < $("#total2").val()) {
+                    owner(++now)
+                    $("#now_page2").text(now)
+                } else {
+                    alert("当前为尾页")
+                }
+            });
+        })
+
+        // 修改
+        function change() {
+            $("#a11").html(
+                "<input id='account' class='form-control col-md-7 col-xs-12' data-validate-length-range='6' data-validate-words='2'" +
+                " name='account' required='required' type='text' maxlength='11' value='" +
+                +account + "'>"
+            )
+            $("#e11").html(
+                "<input type='email' id='email' name='mail' required='required' class='form-control col-md-7 col-xs-12' value='" +
+                mail + "'>"
+            )
+            $("#n11").html(
+                "<input type='text' id='name' name='name' required='required' class='form-control col-md-7 col-xs-12' value='" +
+                name + "'>"
+            )
+            $("#i11").html(
+                "<input type='text' id='idCard' name='identity' required='required' class='form-control col-md-7 col-xs-12' value='" +
+                identity + "'>"
+            )
+            $("#but").html(
+                "<div class='col-md-6 col-md-offset-3'>" +
+                "<button type='button' class='btn btn-success' onclick='updateMsg()'>提交</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                "<button type='button' class='btn btn-primary' onclick='back()'>取消</button></div>"
+            )
+        }
+
+        // 提交
+        function updateMsg() {
+            if ($("#account").val() == "") {
+                alert("账号必填")
+            } else {
+                update()
+                window.location.reload()
+            }
+        }
+
+        function update() {
+            $.ajax({
+                type: "post",
+                url: "/customer_data/update_customer",
+                data: $("#personalForm").serialize(),
+                success: function (res) {
+                    alert(res)
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+
+        function up() {
+            if ($("#password").val() == "" || $("#password2").val() == "") {
+                alert("请填新密码")
+            } else {
+                update1()
+            }
+        }
+
+        function update1() {
+            $.ajax({
+                type: "post",
+                url: "/customer_data/update_password",
+                data: {
+                    pk: $("#pkCustomer").val(),
+                    password: $("#password").val()
+                },
+                success: function (res) {
+                    alert(res)
+                    window.location.reload()
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+
+        // 返回
+        function back() {
+            $("#email").val(mail)
+            $("#name").val(name)
+            $("#idCard").val(identity)
+            $("#a11").html(
+                "<input id='account' class='form-control col-md-7 col-xs-12' data-validate-length-range='6' data-validate-words='2'" +
+                " name='account' required='required' type='text' maxlength='11' disabled='disabled' value='" +
+                +account + "'>"
+            )
+            $("#e11").html(
+                "<input type='email' id='email' name='mail' required='required' class='form-control col-md-7 col-xs-12' disabled='disabled' value='" +
+                mail + "'>"
+            )
+            $("#n11").html(
+                "<input type='text' id='name' name='name' required='required' class='form-control col-md-7 col-xs-12' disabled='disabled' value='" +
+                name + "'>"
+            )
+            $("#i11").html(
+                "<input type='text' id='idCard' name='identity' required='required' class='form-control col-md-7 col-xs-12' disabled='disabled' value='" +
+                identity + "'>"
+            )
+            $("#but").html(
+                "<div class='col-md-6 col-md-offset-3'><button onclick='change()' type='button' class='btn btn-success'>修改</button></div>"
+            )
+        }
+
+        //密码验证
+        function checkPw1() {
+            $.ajax({
+                type: "post",
+                url: "/customer_data/password",
+                data: {
+                    account: account,
+                    password: $("#Oldpassword").val()
+                },
+                dataType: "json",
+                success: function (res) {
+                    if (res == 0) {
+                        $("#pwTie").text("密码错误")
+                    } else {
+                        $("#modal").html(
+                            "<div class='modal-header' style='text-align: center;'><button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button></div>" +
+                            "</div><form id='loginForm'>" +
+                            "<div class='modal-body col-lg-12' style='height: 160px;margin-top: 20px;'>" +
+                            "<div class='form-group'><label class='col-sm-2 control-label'>新密码</label>" +
+                            "<div class='col-sm-10'><input type='text' class='form-control'id='password'></div>" +
+                            "</div><br><br><br>" +
+                            "<div class='form-group'><label class='col-sm-2 control-label'>再输密码</label>" +
+                            "<div class='col-sm-10'><input type='password' class='form-control'id='password2'>" +
+                            "</div></div></div>" +
+                            " <div style='text-align: center;height: 260px;'>\n" +
+                            "<button type='button' class='btn btn-primary' onclick='up()'>提交</button>" +
+                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                            "<button type='button' class='btn btn-default' data-dismiss='modal' aria-hidden='true'>取消</button>" +
+                            "</div></form>"
+                        )
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+    </script>
+</head>
+
+<body data-spy="scroll" data-target="#myScrollspy">
+<div class="container">
+    <div class="jumbotron">
+        <h1>广州房源信息系统</h1>
+    </div>
+    <div class="row">
+        <div class="col-xs-3" id="myScrollspy">
+            <ul class="nav nav-tabs nav-stacked nn" data-spy="affix" data-offset-top="125">
+                <li><a href="/visitor/index">二手房</a></li>
+                <li><a href="/visitor/lease">租房</a></li>
+                <li><a href="/visitor/village">小区</a></li>
+                <li class="active"><a onclick="window.location.reload()"><span class="glyphicon glyphicon-ok-circle"
+                                                                               style="color: green"></span>
+                    <span sec:authentication="name"></span></a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-9">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title" sec:authorize="isAuthenticated()">
+                        <h2 sec:authentication="name"><i class="fa fa-bars"></i>&nbsp;&nbsp;&nbsp;鲁趁</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <button type="button" class="btn btn-success" data-toggle="modal"
+                                        data-target="#pwModal">修改密码
+                                </button>
+                            </li>
+                            <li>
+                                <form th:action="@{/cus/logout}" method="post">
+                                    <button id="out" type="submit" class="btn btn-danger">注销</button>
+                                </form>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+
+                        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                                <li role="presentation" class="active"><a href="#tab_content1" id="home-tab" role="tab"
+                                                                          data-toggle="tab" aria-expanded="true">
+                                    <span class="glyphicon glyphicon-user"></span>个人信息</a>
+                                </li>
+                                <li role="presentation" class=""><a href="#tab_content2" role="tab" id="profile-tab"
+                                                                    data-toggle="tab" aria-expanded="false">
+                                    <span class="glyphicon glyphicon-list"></span>订单</a>
+                                </li>
+                                <li role="presentation" class=""><a href="#tab_content3" role="tab" id="profile-tab2"
+                                                                    data-toggle="tab" aria-expanded="false">
+                                    <span class="glyphicon glyphicon-star"></span>我的</a>
+                                </li>
+                            </ul>
+                            <div id="myTabContent" class="tab-content">
+                                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1"
+                                     aria-labelledby="home-tab">
+                                    <div class="x_panel">
+                                        <div class="x_content">
+                                            <form class="form-horizontal form-label-left" novalidate id="personalForm">
+                                                <div class="item form-group">
+                                                    <input id="pkCustomer" name="pkCustomer" hidden/>
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                                           for="account">电话（账号）
+                                                    </label>
+                                                    <div class="col-md-6 col-sm-6 col-xs-12" id="a11">
+                                                        <input id="account" class="form-control col-md-7 col-xs-12"
+                                                               data-validate-length-range="6" data-validate-words="2"
+                                                               name="customer.account" required="required" type="text"
+                                                               maxlength="11" disabled="disabled">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <p style="color: red" id="account_tie"></p>
+                                                    </div>
+                                                </div>
+                                                <div class="item form-group">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                                           for="email">邮箱
+                                                    </label>
+                                                    <div class="col-md-6 col-sm-6 col-xs-12" id="e11">
+                                                        <input type="email" id="email" name="customer.mail"
+                                                               required="required"
+                                                               class="form-control col-md-7 col-xs-12"
+                                                               disabled="disabled">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <p style="color: red" id="email_tie"></p>
+                                                    </div>
+                                                </div>
+                                                <div class="item form-group">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name">姓名
+                                                    </label>
+                                                    <div class="col-md-6 col-sm-6 col-xs-12" id="n11">
+                                                        <input type="text" id="name" name="customer.name"
+                                                               required="required"
+                                                               class="form-control col-md-7 col-xs-12"
+                                                               disabled="disabled">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <p style="color: red" id="name_tie"></p>
+                                                    </div>
+                                                </div>
+                                                <div class="item form-group">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                                           for="idCard">身份证
+                                                    </label>
+                                                    <div class="col-md-6 col-sm-6 col-xs-12" id="i11">
+                                                        <input type="text" id="idCard" name="customer.identity"
+                                                               required="required"
+                                                               class="form-control col-md-7 col-xs-12"
+                                                               disabled="disabled">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <p style="color: red" id="idCard_tie"></p>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="form-group" id="but" style="text-align: center">
+                                                    <div class="col-md-6 col-md-offset-3">
+                                                        <button onclick="change()" type="button"
+                                                                class="btn btn-success">修改
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content2"
+                                     aria-labelledby="profile-tab">
+                                    <div class="x_panel">
+                                        <div class="x_title">
+                                            <h2>订单信息</h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content" id="bill">
+                                            <table class="table">
+                                                <thead>
+                                                <tr>
+                                                    <th>订单号</th>
+                                                    <th>房屋</th>
+                                                    <th>业务员</th>
+                                                    <th>状态</th>
+                                                    <th>时间</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="b"></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <input hidden id="total1">
+                                        <div class="col-lg-12" style="margin-top: 0px; text-align: center" id="page1">
+                                            <div>
+                                                <ul class="pagination pagination-lg">
+                                                    <li><a href="#" id="up_page1">&laquo;</a></li>
+                                                    <li><a href="#" id="now_page1">1</a></li>
+                                                    <li><a href="#" id="down_page1">&raquo;</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content3"
+                                     aria-labelledby="profile-tab">
+                                    <div class="x_panel">
+                                        <div class="x_title">
+                                            <h2>信息管理</h2>
+                                            <button type="button" class="btn btn-success" style="float: right"
+                                                    onclick="window.location.href='/customer/sell'">
+                                                <span class="glyphicon glyphicon-plus"></span>出售
+                                            </button>
+                                            <button type="button" class="btn btn-success" style="float: right"
+                                                    onclick="window.location.href='/customer/lease'">
+                                                <span class="glyphicon glyphicon-plus"></span>放租
+                                            </button>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content" id="owner">
+                                            <table class="table">
+                                                <thead>
+                                                <tr>
+                                                    <th>房屋</th>
+                                                    <th>形式</th>
+                                                    <th>状态</th>
+                                                    <th>编辑</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="o"></tbody>
+                                            </table>
+                                        </div>
+                                        <input hidden id="total2">
+                                        <div class="col-lg-12" style="margin-top: 0px; text-align: center" id="page2">
+                                            <div>
+                                                <ul class="pagination pagination-lg">
+                                                    <li><a href="#" id="up_page2">&laquo;</a></li>
+                                                    <li><a href="#" id="now_page2">1</a></li>
+                                                    <li><a href="#" id="down_page2">&raquo;</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="pwModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="modal">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="col-lg-2" style="margin-top: 20px;"></div>
+            <div class="modal-body col-lg-8" style="margin-top: 20px;">
+                <div class="form-group">
+                    <label for="Oldpassword" class="col-sm-2 control-label">密码</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="Oldpassword">
+                        <span class="input-group-btn">
+						<button class="btn btn-default" type="button" id="pwCheck">
+							<span class="glyphicon glyphicon-arrow-right"></span>
+						</button>
+					</span>
+                    </div><!-- /input-group -->
+                </div>
+                <div style="text-align: center">
+                    <p style="color: red" id="pwTie"></p>
+                </div>
+            </div>
+            <div class="col-lg-2" style="margin-top: 20px;"></div>
+            <div class="modal-footer" style="text-align: center;">
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+</body>
+</html>

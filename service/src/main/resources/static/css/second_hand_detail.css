@@ -1,0 +1,37 @@
+@charset "utf-8";
+.st {
+	font-weight: bold;
+}
+#tt{
+	text-align: center;
+	height: 23px;
+}
+#tt p{
+	font-weight: bolder;
+	font-size: 15px;
+}
+#dd{
+	text-align: center;
+	height: 30px;
+}
+#dd p{
+	margin-top: -10px;
+	font-size: 6px;
+}
+#pp {
+	height: 66px;
+}
+#pp div h2 {
+	color: red;
+	font-weight: bolder;
+}
+#pp div h2 small{
+	color: red;
+}
+#pp div p{
+	padding-top: 38px;
+	margin-left: -30px;
+}
+#t3 p{
+	color:darkgray;
+}

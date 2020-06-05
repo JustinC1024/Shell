@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.building.SellRoomCharacteristicMapper">
+
+    <insert id="doSellRoomCharacteristic" parameterType="sellRoomCharacteristic">
+        INSERT INTO db_sell_room_characteristic (pk_sell_room_characteristic, core, apartment, village, crowd,
+        situation, traffic, surround, taxation, ts, dr) VALUES (
+          #{pkSellRoomCharacteristic}, #{core}, #{apartment}, #{village}, #{crowd}, #{situation}, #{traffic},
+          #{surround}, #{taxation}, #{ts}, 0
+        )
+    </insert>
+
+    <update id="updateSellRoomCharacteristic" parameterType="sellRoomCharacteristic">
+        UPDATE db_sell_room_characteristic
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <otherwise>
+                    core = #{core}, apartment = #{apartment}, village = #{village}, crowd = #{crowd},
+                    situation = #{situation}, traffic = #{traffic}, surround = #{surround}, taxation = #{taxation}
+                </otherwise>
+            </choose>
+        </set>
+        <where>pk_sell_room_characteristic = #{pkSellRoomCharacteristic}</where>
+    </update>
+
+</mapper>

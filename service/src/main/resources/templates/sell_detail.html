@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="utf-8">
+    <title>sell-detail</title>
+    <link th:href="${#request.getContextPath()} + '/css/custom.css'" rel="stylesheet">
+    <link th:href="${#request.getContextPath()} + '/css/second_hand_detail.css'" rel="stylesheet" type="text/css">
+    <link th:href="${#request.getContextPath()} + '/css/index.css'" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" th:href="${#request.getContextPath()} + '/webjars/bootstrap/3.3.7/css/bootstrap.min.css'">
+    <script th:src="${#request.getContextPath()} + '/webjars/jquery/2.1.1/jquery.min.js'"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<script type="text/javascript" th:inline="javascript">
+    // 路径
+    var base_path = [[${#httpServletRequest.getScheme() + '://' + #httpServletRequest.getServerName() + ":" + #httpServletRequest.getServerPort() + #httpServletRequest.getContextPath()}]];
+    // 页面初始化
+    $(window).load(
+        function () {
+            initHtml()
+            var s = [[${s}]]
+            if (s == 1) {
+                $("#update").append("下架")
+            } else {
+                $("#update").append("上架")
+            }
+        }
+    );
+
+    // 点击事件
+    $(document).ready(function () {
+        // 个人信息
+        $("#person").click(function () {
+            window.location.href = '/nom/personal/' + $("#u").text()
+        })
+        // 更新
+        $("#update").click(function () {
+            update()
+            window.location.href= "/admin/info"
+        })
+    })
+
+    function initHtml() {
+        $.ajax({
+            type: "post",
+            url: "/visitor_data/sell_detail",
+            data: {
+                pk: [[${pk}]]
+            },
+            dataType: "json",
+            success: function (res) {
+                $("#sell_img_b").html("")
+                $("#sell_img").html("")
+                for (var i = 0; i < res.imgs.length; i++) {
+                    if (i == 0) {
+                        $("#sell_img_b").append(
+                            "<li data-target='#myCarousel' data-slide-to='0' class='active' ></li>"
+                        )
+                        $("#sell_img").append("<div class='item active'><img src='" +
+                            base_path + "/visitor_data/room_img/" + res.imgs[i].pkRoomImg +
+                            "'></div>")
+                    } else {
+                        $("#sell_img_b").append(
+                            "<li data-target='#myCarousel' data-slide-to='" + i + "'></li>"
+                        )
+                        $("#sell_img").append("<div class='item'><img src='" +
+                            base_path + "/visitor_data/room_img/" + res.imgs[i].pkRoomImg +
+                            "'></div>")
+                    }
+                }
+                $("#pp").html(
+                    "<div class='col-lg-4'><h2>" +
+                    res.pkSellPrice.totalPrice +
+                    "<small>万</small></h2></div><div class='col-lg-8'><p>" +
+                    res.pkSellPrice.unitPrice +
+                    "<span>元/平米</span></p></div>"
+                )
+                $("#tt").html(
+                    "<p class='col-lg-5'>" +
+                    res.pkSellRoomBasic.apartment +
+                    "</p><p class='col-lg-3'>" +
+                    res.pkSellRoomBasic.orientation +
+                    "</p><p class='col-lg-4'>" +
+                    res.pkSellRoomBasic.builtUpArea +
+                    "平米</p>"
+                )
+                $("#dd").html(
+                    "<p class='col-lg-5'>" +
+                    res.pkSellRoomBasic.floor +
+                    "/共" +
+                    res.pkSellRoomBasic.floorNum +
+                    "层</p><p class='col-lg-3'>" +
+                    res.pkSellRoomBasic.structure +
+                    "/" +
+                    res.pkSellRoomBasic.decoration +
+                    "</p><p class='col-lg-4'>" +
+                    res.pkSellRoomBasic.type +
+                    "</p>"
+                )
+                $("#sd1").html(
+                    "<p>" +
+                    res.pkVillage.title +
+                    "</p><p>" +
+                    res.county +
+                    "&nbsp;&nbsp;&nbsp;" +
+                    res.location +
+                    "</p>"
+                )
+                $("#sd2").html(
+                    "<tr><th scope='row'>房屋户型</th><td>" +
+                    res.pkSellRoomBasic.apartment +
+                    "</td><td class='col-lg-1'>|</td><td class='st'>所在楼层</td><td>" +
+                    res.pkSellRoomBasic.floor + "（共" + res.pkSellRoomBasic.floorNum + "层）" +
+                    "</td></tr>" +
+                    "<tr><th scope='row'>建筑面积</th><td>" +
+                    res.pkSellRoomBasic.builtUpArea +
+                    "平米</td><td class='col-lg-1'>|</td><td class='st'>户型结构</td><td>" +
+                    res.pkSellRoomBasic.structure +
+                    "</td></tr>" +
+                    "<tr><th scope='row'>内套面积</th><td>" +
+                    res.pkSellRoomBasic.area +
+                    "平米</td><td class='col-lg-1'>|</td><td class='st'>建筑类型</td><td>" +
+                    res.pkSellRoomBasic.type +
+                    "</td></tr>" +
+                    "<tr><th scope='row'>房屋朝向</th><td>" +
+                    res.pkSellRoomBasic.orientation +
+                    "</td><td class='col-lg-1'>|</td><td class='st'>建筑结构</td><td>" +
+                    res.pkSellRoomBasic.building +
+                    "</td></tr>" +
+                    "<tr><th scope='row'>装修情况</th><td>" +
+                    res.pkSellRoomBasic.decoration +
+                    "</td><td class='col-lg-1'>|</td><td class='st'>梯户比例</td><td>" +
+                    res.pkSellRoomBasic.ladder +
+                    "</td></tr>" +
+                    "<tr><th scope='row'>产权年限</th><td>" +
+                    res.pkSellRoomBasic.propertyYears +
+                    "年</td><td class='col-lg-1'></td><td class='st'></td><td></td></tr>"
+                )
+                $("#sd3").html(
+                    "<tr><th scope='row'>挂牌时间</th><td>" +
+                    res.pkSellRoomTransaction.listingTs +
+                    "</td><td class='col-lg-1'>|</td><td class='st'>交易权属</td><td>" +
+                    res.pkSellRoomTransaction.ownership +
+                    "</td></tr>" +
+                    "<tr><th scope='row'>上次交易</th><td>" +
+                    res.pkSellRoomTransaction.lastTs +
+                    "</td><td class='col-lg-1'>|</td><td class='st'>房屋用途</td><td>" +
+                    res.pkSellRoomTransaction.purpose +
+                    "</td></tr>" +
+                    "<tr><th scope='row'>房屋年限</th><td>" +
+                    res.pkSellRoomTransaction.years +
+                    "</td><td class='col-lg-1'>|</td><td class='st'>产权所属</td><td>" +
+                    res.pkSellRoomTransaction.property +
+                    "</td></tr>" +
+                    "<tr><th scope='row'>抵押信息</th><td>" +
+                    res.pkSellRoomTransaction.mortgage +
+                    "</td><td class='col-lg-1'>|</td><td class='st'>房本备件</td><td>" +
+                    res.pkSellRoomTransaction.permit +
+                    "</td></tr>"
+                )
+                $("#sd4").html("")
+                if (res.pkSellRoomCharacteristic.core != null && res.pkSellRoomCharacteristic.core != "") {
+                    $("#sd4").append(
+                        "<tr><th scope='row'>核心卖点</th><td>" +
+                        res.pkSellRoomCharacteristic.core +
+                        "</td></tr>"
+                    )
+                }
+                if (res.pkSellRoomCharacteristic.apartment != null && res.pkSellRoomCharacteristic.apartment != "") {
+                    $("#sd4").append(
+                        "<tr><th scope='row'>户型介绍</th><td>" +
+                        res.pkSellRoomCharacteristic.apartment +
+                        "</td></tr>"
+                    )
+                }
+                if (res.pkSellRoomCharacteristic.village != null && res.pkSellRoomCharacteristic.village != "") {
+                    $("#sd4").append(
+                        "<tr><th scope='row'>小区介绍</th><td>" +
+                        res.pkSellRoomCharacteristic.village +
+                        "</td></tr>"
+                    )
+                }
+                if (res.pkSellRoomCharacteristic.crowd != null && res.pkSellRoomCharacteristic.crowd != "") {
+                    $("#sd4").append(
+                        "<tr><th scope='row'>适宜人群</th><td>" +
+                        res.pkSellRoomCharacteristic.crowd +
+                        "</td></tr>"
+                    )
+                }
+                if (res.pkSellRoomCharacteristic.traffic != null && res.pkSellRoomCharacteristic.traffic != "") {
+                    $("#sd4").append(
+                        "<tr><th scope='row'>交通出行</th><td>" +
+                        res.pkSellRoomCharacteristic.traffic +
+                        "</td></tr>"
+                    )
+                }
+                if (res.pkSellRoomCharacteristic.surround != null && res.pkSellRoomCharacteristic.surround != "") {
+                    $("#sd4").append(
+                        "<tr><th scope='row'>周边配套</th><td>" +
+                        res.pkSellRoomCharacteristic.surround +
+                        "</td></tr>"
+                    )
+                }
+                if (res.pkSellRoomCharacteristic.taxation != null && res.pkSellRoomCharacteristic.taxation != "") {
+                    $("#sd4").append(
+                        "<tr><th scope='row'>税费解析</th><td>" +
+                        res.pkSellRoomCharacteristic.taxation +
+                        "</td></tr>"
+                    )
+                }
+                $("#sd5").html(
+                    "<img src='" +
+                    base_path + "/visitor_data/compartment_img/" + res.pkSellRoomCompartment.pkSellRoomCompartment +
+                    "'/>"
+                )
+                $("#sd6").html("")
+                for (var i = 0; i < res.pkSellRoomCompartment.compartments.length; i++) {
+                    $("#sd6").append(
+                        "<tr><th scope='row'>" +
+                        res.pkSellRoomCompartment.compartments[i].spare1 +
+                        "</th><td>" +
+                        res.pkSellRoomCompartment.compartments[i].area +
+                        "平米</td><td>" +
+                        res.pkSellRoomCompartment.compartments[i].direction +
+                        "</td><td>" +
+                        res.pkSellRoomCompartment.compartments[i].windows +
+                        "</td></tr>"
+                    )
+                }
+                $("#sdt").html(
+                    "<h2 style='font-weight: bolder'>" +
+                    res.title +
+                    "</h2><p style='color: darkgray'>" +
+                    res.pkSellRoomCharacteristic.core +
+                    "</p>"
+                )
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    // 认证
+    function update() {
+        $.ajax({
+            type: "post",
+            url: "/admin_data/update_owner",
+            dataType: "json",
+            data: {
+                pk: [[${pk}]],
+                status: [[${s}]],
+                clerkName: $("#u").text(),
+                style: "sell"
+            },
+            success: function (res) {
+                if (res == 0) {
+                    alert("操作失败")
+                } else {
+                    alert("操作成功")
+                }
+            },
+            error: function () {
+                alert("error")
+            }
+        })
+    }
+
+</script>
+
+
+<body data-spy="scroll" data-target="#myScrollspy">
+<div class="container">
+    <div class="jumbotron">
+        <h1>广州房源信息系统</h1>
+    </div>
+    <div class="row">
+        <div class="col-xs-3" id="myScrollspy">
+            <ul class="nav nav-tabs nav-stacked" data-spy="affix" data-offset-top="125">
+                <li sec:authorize="hasRole('ADMIN')"><a href="/admin/user">账号管理</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a href="/admin/bill">订单管理</a></li>
+                <li sec:authorize="hasRole('ADMIN')" class="active"><a href="/admin/info">信息管理</a></li>
+                <li sec:authorize="hasRole('ADMIN')" class="active"><a href="/admin/village">小区</a></li>
+                <li sec:authorize="isAuthenticated()">
+                    <a id="person"><span class="glyphicon glyphicon-ok-circle" style="color: green"></span>
+                        <span sec:authentication="name" id="u"></span></a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-9">
+            <div id="sdt"></div>
+            <hr>
+            <div style="height: 300px;">
+                <div class="col-lg-7">
+                    <div id="myCarousel" class="carousel slide" data-interval="false" style="height: 262px;">
+                        <!-- 轮播（Carousel）指标 -->
+                        <ol class="carousel-indicators" id="sell_img_b"></ol>
+                        <!-- 轮播（Carousel）项目 -->
+                        <div class="carousel-inner" style="height: 262px;" id="sell_img"></div>
+                        <!-- 轮播（Carousel）导航 -->
+                        <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+                            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+                            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div id="pp"></div>
+                    <hr>
+                    <div>
+                        <div id="tt"></div>
+                        <div id="dd"></div>
+                    </div>
+                    <hr>
+                    <div>
+                        <div class="col-lg-4" id="t3">
+                            <p>小区名称</p>
+                            <p>所在区域</p>
+                        </div>
+                        <div class="col-lg-8" id="sd1"></div>
+                    </div>
+                    <div style="height: 66px;"></div>
+                    <div style="text-align: center;">
+                        <div class='btn-group' data-toggle='buttons'>
+                            <label class='btn btn-primary' id="update">
+                                <input type='checkbox'>
+                            </label>
+                            <label class='btn btn-danger' onclick='window.location.href="/admin/info"'>
+                                <input type='checkbox'>取消
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>房源基本信息</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>基本属性</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody id="sd2"></tbody>
+                    </table>
+                </div>
+                <div class="x_content">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>交易属性</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody id="sd3"></tbody>
+                    </table>
+                </div>
+            </div>
+            <hr>
+            <div>
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>本房源特色</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>房源特色</th>
+                                <th class="col-lg-9"></th>
+                            </tr>
+                            </thead>
+                            <tbody id="sd4"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div>
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>该户型分间</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div id="sd5"></div>
+                    <div class="x_content">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>房间</th>
+                                <th>面积</th>
+                                <th>朝向</th>
+                                <th>窗</th>
+                            </tr>
+                            </thead>
+                            <tbody id="sd6"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

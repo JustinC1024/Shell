@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.building.LeaseRoomMatingMapper">
+
+    <insert id="doLeaseRoomMating" parameterType="leaseRoomMating">
+        INSERT INTO db_lease_room_mating (pk_lease_room_mating, television, fridge, washing, air, heater, bed,
+        heating, broadband, wardrobe, gas, ts, dr) VALUES (
+          #{pkLeaseRoomMating}, #{television}, #{fridge}, #{washing}, #{air}, #{heater}, #{bed}, #{heating},
+          #{broadband}, #{wardrobe}, #{gas}, #{ts}, 0
+        )
+    </insert>
+
+    <update id="updateLeaseRoomMating" parameterType="leaseRoomMating">
+        UPDATE db_lease_room_mating
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <otherwise>
+                    television = #{television}, fridge = #{fridge}, washing = #{washing}, air = #{air},
+                    heater = #{heater}, bed = #{bed}, heating = #{heating}, broadband= #{broadband},
+                    wardrobe = #{wardrobe}, gas = #{gas}
+                </otherwise>
+            </choose>
+           </set>
+        <where>pk_lease_room_mating = #{pkLeaseRoomMating}</where>
+    </update>
+
+</mapper>

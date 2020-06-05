@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.record.FollowMapper">
+
+    <insert id="doFollow" parameterType="follow">
+        INSERT INTO cmp_follow (pk_follow, pk_lease_room, pk_sell_room, pk_customer, dr, ts) VALUES (
+          #{pkFollow}, #{pkLeaseRoom.pkLeaseRoom}, #{pkSelllRoom.pkSelllRoom}, #{pkCustomer.pkCustomer}, 0, #{ts}
+        )
+    </insert>
+
+    <update id="updateFollow" parameterType="follow">
+        UPDATE cmp_follow
+        <set>
+            <if test="ts != null">
+                ts = #{ts},
+            </if>
+            dr = #{dr}
+        </set>
+        <where>pk_follow = #{pk}</where>
+    </update>
+
+    <select id="getListFollow" parameterType="follow" resultType="follow">
+        SELECT
+          f.pk_follow, b.ts,
+          lr.pk_lease_room AS 'pkLeaseRoom.pkLeaseRoom', lr.title AS 'pkLeaseRoom.title',
+          sr.pk_sell_room AS 'pkSellRoom.pkSellRoom', sr.title AS 'pkSellRoom.title',
+        FROM
+          cmp_follow f
+          LEFT JOIN db_lease_room lr ON f.pk_lease_room = lr.pk_lease_room
+          LEFT JOIN db_sell_room sr ON f.pk_sell_room = sr.pk_lease_room
+          LEFT JOIN db_customer c ON f.pk_customer = c.pk_customer
+        <where>
+            f.dr = #{dr}
+            <if test="pkLeaseRoom != null">
+                AND lr.pkLeaseRoom = #{pkLeaseRoom.pkLeaseRoom}
+            </if>
+            <if test="pkSellRoom != null">
+                AND sr.pkSellRoom = #{pkSellRoom.pkSellRoom}
+            </if>
+            <if test="pkCustomer != null">
+                AND c.pkCustomer = #{pkCustomer.pkCustomer}
+            </if>
+        </where>
+    </select>
+
+</mapper>

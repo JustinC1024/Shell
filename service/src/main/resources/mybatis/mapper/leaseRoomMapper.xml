@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.building.LeaseRoomMapper">
+
+    <insert id="doLeaseRoom" parameterType="leaseRoom">
+        INSERT INTO db_lease_room (pk_lease_room, title, county, location, apartment, mode, public_ts, update_ts,
+        pk_lease_price, pk_lease_room_basic, pk_lease_room_mating, ts, dr, status) VALUES (
+          #{pkLeaseRoom}, #{title}, #{county}, #{location}, #{apartment}, #{mode}, #{publicTs}, #{updateTs},
+          #{pkLeasePrice.pkLeasePrice}, #{pkLeaseRoomBasic.pkLeaseRoomBasic}, #{pkLeaseRoomMating.pkLeaseRoomMating},
+          #{ts}, 0, 0
+        )
+    </insert>
+
+    <update id="updateLeaseRoom" parameterType="leaseRoom">
+        UPDATE db_lease_room
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <otherwise>
+                    title = #{title}, county = #{county}, location = #{location}, apartment = #{apartment},
+                    mode = #{mode}, update_ts = #{updateTs}, status = 0
+                </otherwise>
+            </choose>
+        </set>
+        <where>pk_lease_room = #{pkLeaseRoom}</where>
+    </update>
+
+    <select id="getListLeaseRoom" parameterType="leaseRoom" resultType="leaseRoom">
+        SELECT
+          r.pk_lease_room, r.title, r.location, r.apartment, r.update_ts,
+          p.rent AS 'pkLeasePrice.rent',
+          b.area AS 'pkLeaseRoomBasic.area', b.orientation AS 'pkLeaseRoomBasic.orientation',
+          i.pk_room_img AS 'img.pkRoomImg'
+        FROM db_lease_room r
+          LEFT JOIN db_lease_price p ON r.pk_lease_price = p.pk_lease_price
+          LEFT JOIN db_lease_room_basic b ON r.pk_lease_room_basic = b.pk_lease_room_basic
+          LEFT JOIN db_room_img i ON r.pk_lease_room = i.pk_room
+        <where>
+            i.ind = 1 AND r.dr = 0 AND p.dr = 0 AND b.dr = 0 AND i.dr = 0 AND r.status = 1
+            <if test="county != null">
+                AND r.county = #{county}
+            </if>
+            <if test="mode != null">
+                AND r.mode = #{mode}
+            </if>
+            <if test="pkLeaseRoomBasic != null">
+                AND b.orientation = #{pkLeaseRoomBasic.orientation}
+            </if>
+            <if test="title != null">
+                AND r.title LIKE #{title}
+            </if>
+            <if test="apartment != null">
+                AND r.apartment LIKE #{apartment}
+            </if>
+        </where>
+        <choose>
+            <when test="updateTs != null">
+                <if test='updateTs == "asc"'>
+                    ORDER BY r.update_ts ASC
+                </if>
+                <if test='updateTs == "desc"'>
+                    ORDER BY r.update_ts DESC
+                </if>
+            </when>
+            <when test="pkLeasePrice.rent != null">
+                <if test='pkLeasePrice.rent == 1'>
+                    ORDER BY p.rent ASC
+                </if>
+                <if test='pkLeasePrice.rent == 0'>
+                    ORDER BY p.rent DESC
+                </if>
+            </when>
+        </choose>
+    </select>
+
+    <select id="getLeaseRoomByPk" parameterType="String" resultMap="detailLeaseRoom">
+        SELECT
+          r.pk_lease_room, r.title, r.county, r.location, r.apartment, r.mode, r.update_ts,
+          p.pk_lease_price AS 'pkLeasePrice.pkLeasePrice', p.payment AS 'pkLeasePrice.payment',
+          p.rent AS 'pkLeasePrice.rent', p.deposit AS 'pkLeasePrice.deposit',
+          p.service AS 'pkLeasePrice.service', p.agency AS 'pkLeasePrice.agency',
+          b.pk_lease_room_basic AS 'pkLeaseRoomBasic.pkLeaseRoomBasic', b.area AS 'pkLeaseRoomBasic.area',
+          b.orientation AS 'pkLeaseRoomBasic.orientation', b.maintain AS 'pkLeaseRoomBasic.maintain',
+          b.check_in AS 'pkLeaseRoomBasic.checkIn', b.floor AS 'pkLeaseRoomBasic.floor',
+          b.floor_num AS 'pkLeaseRoomBasic.floorNum', b.ladder AS 'pkLeaseRoomBasic.ladder',
+          b.parking AS 'pkLeaseRoomBasic.parking', b.water AS 'pkLeaseRoomBasic.water',
+          b.electricity AS 'pkLeaseRoomBasic.electricity', b.gas AS 'pkLeaseRoomBasic.gas',
+          b.term AS 'pkLeaseRoomBasic.term', b.heating AS 'pkLeaseRoomBasic.heating',
+          b.inspection AS 'pkLeaseRoomBasic.inspection',
+          m.pk_lease_room_mating AS 'pkLeaseRoomMating.pkLeaseRoomMating',
+          m.television AS 'pkLeaseRoomMating.television', m.fridge AS 'pkLeaseRoomMating.fridge',
+          m.washing AS 'pkLeaseRoomMating.washing', m.air AS 'pkLeaseRoomMating.air',
+          m.heater AS 'pkLeaseRoomMating.heater', m.bed AS 'pkLeaseRoomMating.bed',
+          m.heating AS 'pkLeaseRoomMating.heating', m.broadband AS 'pkLeaseRoomMating.broadband',
+          m.wardrobe AS 'pkLeaseRoomMating.wardrobe', m.gas AS 'pkLeaseRoomMating.gas',
+          i.pk_room_img, i.ind
+        FROM
+          db_lease_room r
+            LEFT JOIN db_lease_price p ON r.pk_lease_price = p.pk_lease_price
+            LEFT JOIN db_lease_room_basic b ON r.pk_lease_room_basic = b.pk_lease_room_basic
+            LEFT JOIN db_lease_room_mating m ON r.pk_lease_room_mating = m.pk_lease_room_mating
+            LEFT JOIN db_room_img i ON r.pk_lease_room = i.pk_room
+        <where>
+            r.dr = 0 AND r.pk_lease_room = #{pk} AND p.dr = 0 AND b.dr = 0 AND m.dr = 0 AND i.dr = 0
+        </where>
+    </select>
+    
+    <resultMap id="detailLeaseRoom" type="leaseRoom">
+        <result property="pkLeaseRoom" column="pk_lease_room"/>
+        <result property="title" column="title"/>
+        <result property="county" column="county"/>
+        <result property="location" column="location"/>
+        <result property="apartment" column="apartment"/>
+        <result property="mode" column="mode"/>
+        <result property="updateTs" column="update_ts"/>
+        <association property="pkLeasePrice" javaType="leasePrice">
+            <result property="pkLeasePrice" column="pkLeasePrice.pkLeasePrice"/>
+            <result property="payment" column="pkLeasePrice.payment"/>
+            <result property="rent" column="pkLeasePrice.rent"/>
+            <result property="deposit" column="pkLeasePrice.deposit"/>
+            <result property="service" column="pkLeasePrice.service"/>
+            <result property="agency" column="pkLeasePrice.agency"/>
+        </association>
+        <association property="pkLeaseRoomBasic" javaType="leaseRoomBasic">
+            <result property="pkLeaseRoomBasic" column="pkLeaseRoomBasic.pkLeaseRoomBasic"/>
+            <result property="area" column="pkLeaseRoomBasic.area"/>
+            <result property="orientation" column="pkLeaseRoomBasic.orientation"/>
+            <result property="maintain" column="pkLeaseRoomBasic.maintain"/>
+            <result property="checkIn" column="pkLeaseRoomBasic.checkIn"/>
+            <result property="floor" column="pkLeaseRoomBasic.floor"/>
+            <result property="floorNum" column="pkLeaseRoomBasic.floorNum"/>
+            <result property="ladder" column="pkLeaseRoomBasic.ladder"/>
+            <result property="parking" column="pkLeaseRoomBasic.parking"/>
+            <result property="water" column="pkLeaseRoomBasic.water"/>
+            <result property="electricity" column="pkLeaseRoomBasic.electricity"/>
+            <result property="gas" column="pkLeaseRoomBasic.gas"/>
+            <result property="term" column="pkLeaseRoomBasic.term"/>
+            <result property="heating" column="pkLeaseRoomBasic.heating"/>
+            <result property="inspection" column="pkLeaseRoomBasic.inspection"/>
+        </association>
+        <association property="pkLeaseRoomMating" javaType="leaseRoomMating">
+            <result property="pkLeaseRoomMating" column="pkLeaseRoomMating.pkLeaseRoomMating"/>
+            <result property="television" column="pkLeaseRoomMating.television"/>
+            <result property="fridge" column="pkLeaseRoomMating.fridge"/>
+            <result property="washing" column="pkLeaseRoomMating.washing"/>
+            <result property="air" column="pkLeaseRoomMating.air"/>
+            <result property="heater" column="pkLeaseRoomMating.heater"/>
+            <result property="bed" column="pkLeaseRoomMating.bed"/>
+            <result property="heating" column="pkLeaseRoomMating.heating"/>
+            <result property="broadband" column="pkLeaseRoomMating.broadband"/>
+            <result property="wardrobe" column="pkLeaseRoomMating.wardrobe"/>
+            <result property="gas" column="pkLeaseRoomMating.gas"/>
+        </association>
+        <collection property="imgs" ofType="roomImg">
+            <result property="pkRoomImg" column="pk_room_img"/>
+            <result property="ind" column="ind"/>
+        </collection>
+    </resultMap>
+
+    <select id="getLeaseRoomByTitle" parameterType="String" resultType="leaseRoom">
+        SELECT * FROM db_lease_room
+        <where>
+            dr = 0 AND title = #{title}
+        </where>
+    </select>
+
+    <update id="updateLeaseRoomStatus" parameterType="leaseRoom">
+        UPDATE db_lease_room
+        <set>
+            status = #{status}
+        </set>
+        <where>pk_lease_room = #{pkLeaseRoom}</where>
+    </update>
+
+</mapper>

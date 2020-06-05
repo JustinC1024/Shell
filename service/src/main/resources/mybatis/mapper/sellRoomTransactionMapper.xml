@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.building.SellRoomTransactionMapper">
+
+    <insert id="doSellRoomTransaction" parameterType="sellRoomTransaction">
+        INSERT INTO db_sell_room_transaction (pk_sell_room_transaction, listing_ts, ownership, last_ts, purpose, years,
+        property, mortgage, permit, ts, dr) VALUES (
+          #{pkSellRoomTransaction}, #{listingTs}, #{ownership}, #{lastTs}, #{purpose}, #{years}, #{property},
+          #{mortgage}, #{permit}, #{ts}, 0
+        )
+    </insert>
+
+    <update id="updateSellRoomTransaction" parameterType="sellRoomTransaction">
+        UPDATE db_sell_room_transaction
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <otherwise>
+                    listing_ts = #{listingTs}, ownership = #{ownership}, last_ts = #{lastTs}, purpose = #{purpose},
+                    years = #{years}, property = #{property}, mortgage = #{mortgage}, permit = #{permit}
+                </otherwise>
+            </choose>
+        </set>
+        <where>pk_sell_room_transaction = #{pkSellRoomTransaction}</where>
+    </update>
+
+</mapper>

@@ -1,0 +1,1016 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <head>
+        <meta charset="utf-8">
+        <title>new-lease-detail</title>
+        <link th:href="${#request.getContextPath()} + '/css/custom.css'" rel="stylesheet">
+        <link th:href="${#request.getContextPath()} + '/css/second_hand_detail.css'" rel="stylesheet" type="text/css">
+        <link th:href="${#request.getContextPath()} + '/css/index.css'" rel="stylesheet" type="text/css">
+        <link rel="stylesheet"
+              th:href="${#request.getContextPath()} + '/webjars/bootstrap/3.3.7/css/bootstrap.min.css'">
+        <script th:src="${#request.getContextPath()} + '/webjars/jquery/2.1.1/jquery.min.js'"></script>
+        <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" type="text/css" th:href="${#request.getContextPath()} + '/css/webuploader.css'"/>
+        <link rel="stylesheet" type="text/css" th:href="${#request.getContextPath()} + '/css/style.css'"/>
+        <script type="text/javascript" th:src="${#request.getContextPath()} + '/js/webuploader.js'"></script>
+        <script type="text/javascript" th:src="${#request.getContextPath()} + '/js/sell_upload.js'"></script>
+    </head>
+    <script type="text/javascript" th:inline="javascript">
+        // 路径
+        var base_path = [[${#httpServletRequest.getScheme() + '://' + #httpServletRequest.getServerName() + ":" + #httpServletRequest.getServerPort() + #httpServletRequest.getContextPath()}]];
+        // 页面初始化
+        $(window).load(
+            function () {
+                var pk = [[${pk}]]
+                if (pk != null) {
+                    $.ajax({
+                            dataType: "json",
+                            type: "post",
+                            data: {pk: pk},
+                            url: "/visitor_data/lease_detail",
+                            success: function (res) {
+                                $("#pkLeaseRoom").val(pk)
+                                $("#title").val(res.title)
+                                $("#county").val(res.county)
+                                $("#location").val(res.location)
+                                $("#apartment").val(res.apartment)
+                                $("#pkLeaseRoomBasic_pkLeaseRoomBasic").val(res.pkLeaseRoomBasic.pkLeaseRoomBasic)
+                                $("#pkLeaseRoomBasic_area").val(res.pkLeaseRoomBasic.area)
+                                $("#pkLeaseRoomBasic_orientation").val(res.pkLeaseRoomBasic.orientation)
+                                $("#pkLeaseRoomBasic_checkIn").val(res.pkLeaseRoomBasic.checkIn)
+                                $("#pkLeaseRoomBasic_floor").val(res.pkLeaseRoomBasic.floor)
+                                $("#pkLeaseRoomBasic_floorNum").val(res.pkLeaseRoomBasic.floorNum)
+                                $("#pkLeaseRoomBasic_ladder").val(res.pkLeaseRoomBasic.ladder)
+                                $("#pkLeaseRoomBasic_parking").val(res.pkLeaseRoomBasic.parking)
+                                $("#pkLeaseRoomBasic_water").val(res.pkLeaseRoomBasic.water)
+                                $("#pkLeaseRoomBasic_electricity").val(res.pkLeaseRoomBasic.electricity)
+                                $("#pkLeaseRoomBasic_gas").val(res.pkLeaseRoomBasic.gas)
+                                $("#pkLeaseRoomBasic_heating").val(res.pkLeaseRoomBasic.heating)
+                                $("#pkLeaseRoomBasic_term").val(res.pkLeaseRoomBasic.term)
+                                $("#pkLeaseRoomBasic_inspection").val(res.pkLeaseRoomBasic.inspection)
+                                $("#pkLeasePrice_pkLeasePrice").val(res.pkLeasePrice.pkLeasePrice)
+                                $("#pkLeasePrice_payment").val(res.pkLeasePrice.payment)
+                                $("#pkLeasePrice_rent").val(res.pkLeasePrice.rent)
+                                $("#pkLeasePrice_deposit").val(res.pkLeasePrice.deposit)
+                                $("#pkLeaseRoomMating_pkLeaseRoomMating").val(res.pkLeaseRoomMating.pkLeaseRoomMating)
+                                $("#title").attr("readOnly", true)
+                                $("#county").attr("readOnly", true)
+                                $("#location").attr("readOnly", true)
+                                $("#apartment").attr("readOnly", true)
+                                $("#mode").attr("readOnly", true)
+                                $("#pkLeaseRoomBasic_area").attr("readOnly", true)
+                                $("#pkLeaseRoomBasic_orientation").attr("readOnly", true)
+                                $("#pkLeaseRoomBasic_checkIn").attr("readOnly", true)
+                                $("#pkLeaseRoomBasic_floor").attr("readOnly", true)
+                                $("#pkLeaseRoomBasic_floorNum").attr("readOnly", true)
+                                $("#pkLeaseRoomBasic_ladder").attr("readOnly", true)
+                                $("#pkLeaseRoomBasic_parking").attr("readOnly", true)
+                                $("#pkLeaseRoomBasic_water").attr("readOnly", true)
+                                $("#pkLeaseRoomBasic_electricity").attr("readOnly", true)
+                                $("#pkLeaseRoomBasic_gas").attr("readOnly", true)
+                                $("#pkLeaseRoomBasic_heating").attr("readOnly", true)
+                                $("#pkLeaseRoomBasic_term").attr("readOnly", true)
+                                $("#pkLeaseRoomBasic_inspection").attr("readOnly", true)
+                                $("#pkLeasePrice_payment").attr("readOnly", true)
+                                $("#pkLeasePrice_rent").attr("readOnly", true)
+                                $("#pkLeasePrice_deposit").attr("readOnly", true)
+                                for (var i = 0; i < res.imgs.length; i++) {
+                                    $("#nsd2").append(
+                                        "<div class='col-sm-6 col-md-3' id='" +
+                                        res.imgs[i].pkRoomImg +
+                                        "'><div class='thumbnail'>" +
+                                        "<img src='" +
+                                        base_path + "/visitor_data/room_img/" + res.imgs[i].pkRoomImg +
+                                        "' alt='通用的占位符缩略图'>" +
+                                        "<div class='caption img_b' style='text-align: center' hidden><p>" +
+                                        "<a href='#' class='btn btn-danger' " +
+                                        "role='button' onclick='deleteImg(\"" +
+                                        res.imgs[i].pkRoomImg +
+                                        "\")'>删除</a></p></div></div></div>"
+                                    )
+                                }
+                                $("#nsd1").hide()
+                                $("#but").html(
+                                    "<div class='col-md-6 col-md-offset-3'>" +
+                                    "<button type='button' class='btn btn-success' onclick='change()'>修改</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                                    "<button type='button' class='btn btn-primary' onclick='window.history.back(-1)'>取消</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                                    "<button type='button' class='btn btn-danger' onclick='dele()'>删除</button>" +
+                                    "</div>"
+                                )
+                                if (res.mode == 0) {
+                                    $("#mode_f").attr("checked", true)
+                                    $("#mode").hide()
+                                    $("#mode1").append("<p>整租</p>")
+                                } else {
+                                    $("#mode_t").attr("checked", true)
+                                    $("#mode").hide()
+                                    $("#mode1").append("<p>合租</p>")
+                                }
+                                if (res.pkLeaseRoomMating.washing == 0) {
+                                    $("#pkLeaseRoomMating_washing_f").attr("checked", true)
+                                    $("#pkLeaseRoomMating_washing").hide()
+                                    $("#pkLeaseRoomMating_washing1").append("<p>无</p>")
+                                } else {
+                                    $("#pkLeaseRoomMating_washing_t").attr("checked", true)
+                                    $("#pkLeaseRoomMating_washing").hide()
+                                    $("#pkLeaseRoomMating_washing1").append("<p>有</p>")
+                                }
+                                if (res.pkLeaseRoomMating.air == 0) {
+                                    $("#pkLeaseRoomMating_air_f").attr("checked", true)
+                                    $("#pkLeaseRoomMating_air").hide()
+                                    $("#pkLeaseRoomMating_air1").append("<p>无</p>")
+                                } else {
+                                    $("#pkLeaseRoomMating_air_t").attr("checked", true)
+                                    $("#pkLeaseRoomMating_air").hide()
+                                    $("#pkLeaseRoomMating_air1").append("<p>有</p>")
+                                }
+                                if (res.pkLeaseRoomMating.wardrobe == 0) {
+                                    $("#pkLeaseRoomMating_wardrobe_f").attr("checked", true)
+                                    $("#pkLeaseRoomMating_wardrobe").hide()
+                                    $("#pkLeaseRoomMating_wardrobe1").append("<p>无</p>")
+                                } else {
+                                    $("#pkLeaseRoomMating_wardrobe_t").attr("checked", true)
+                                    $("#pkLeaseRoomMating_wardrobe").hide()
+                                    $("#pkLeaseRoomMating_wardrobe1").append("<p>有</p>")
+                                }
+                                if (res.pkLeaseRoomMating.television == 0) {
+                                    $("#pkLeaseRoomMating_television_f").attr("checked", true)
+                                    $("#pkLeaseRoomMating_television").hide()
+                                    $("#pkLeaseRoomMating_television1").append("<p>无</p>")
+                                } else {
+                                    $("#pkLeaseRoomMating_television_t").attr("checked", true)
+                                    $("#pkLeaseRoomMating_television").hide()
+                                    $("#pkLeaseRoomMating_television1").append("<p>有</p>")
+                                }
+                                if (res.pkLeaseRoomMating.fridge == 0) {
+                                    $("#pkLeaseRoomMating_fridge_f").attr("checked", true)
+                                    $("#pkLeaseRoomMating_fridge").hide()
+                                    $("#pkLeaseRoomMating_fridge1").append("<p>无</p>")
+                                } else {
+                                    $("#pkLeaseRoomMating_fridge_t").attr("checked", true)
+                                    $("#pkLeaseRoomMating_fridge").hide()
+                                    $("#pkLeaseRoomMating_fridge1").append("<p>有</p>")
+                                }
+                                if (res.pkLeaseRoomMating.heater == 0) {
+                                    $("#pkLeaseRoomMating_heater_f").attr("checked", true)
+                                    $("#pkLeaseRoomMating_heater").hide()
+                                    $("#pkLeaseRoomMating_heater1").append("<p>无</p>")
+                                } else {
+                                    $("#pkLeaseRoomMating_heater_t").attr("checked", true)
+                                    $("#pkLeaseRoomMating_heater").hide()
+                                    $("#pkLeaseRoomMating_heater1").append("<p>有</p>")
+                                }
+                                if (res.pkLeaseRoomMating.bed == 0) {
+                                    $("#pkLeaseRoomMating_bed_f").attr("checked", true)
+                                    $("#pkLeaseRoomMating_bed").hide()
+                                    $("#pkLeaseRoomMating_bed1").append("<p>无</p>")
+                                } else {
+                                    $("#pkLeaseRoomMating_bed_t").attr("checked", true)
+                                    $("#pkLeaseRoomMating_bed").hide()
+                                    $("#pkLeaseRoomMating_bed1").append("<p>有</p>")
+                                }
+                                if (res.pkLeaseRoomMating.heating == 0) {
+                                    $("#pkLeaseRoomMating_heating_f").attr("checked", true)
+                                    $("#pkLeaseRoomMating_heating").hide()
+                                    $("#pkLeaseRoomMating_heating1").append("<p>无</p>")
+                                } else {
+                                    $("#pkLeaseRoomMating_heating_t").attr("checked", true)
+                                    $("#pkLeaseRoomMating_heating").hide()
+                                    $("#pkLeaseRoomMating_heating1").append("<p>有</p>")
+                                }
+                                if (res.pkLeaseRoomMating.broadband == 0) {
+                                    $("#pkLeaseRoomMating_broadband_f").attr("checked", true)
+                                    $("#pkLeaseRoomMating_broadband").hide()
+                                    $("#pkLeaseRoomMating_broadband1").append("<p>无</p>")
+                                } else {
+                                    $("#pkLeaseRoomMating_broadband_t").attr("checked", true)
+                                    $("#pkLeaseRoomMating_broadband").hide()
+                                    $("#pkLeaseRoomMating_broadband1").append("<p>有</p>")
+                                }
+                                if (res.pkLeaseRoomMating.gas == 0) {
+                                    $("#pkLeaseRoomMating_gas_f").attr("checked", true)
+                                    $("#pkLeaseRoomMating_gas").hide()
+                                    $("#pkLeaseRoomMating_gas1").append("<p>无</p>")
+                                } else {
+                                    $("#pkLeaseRoomMating_gas_t").attr("checked", true)
+                                    $("#pkLeaseRoomMating_gas").hide()
+                                    $("#pkLeaseRoomMating_gas1").append("<p>有</p>")
+                                }
+                            },
+                            error: function () {
+                                alert("error")
+                            }
+                        }
+                    );
+                }
+            }
+        )
+
+        // 点击事件
+        $(document).ready(function () {
+            // 个人信息
+            $("#person").click(function () {
+                window.location.href = '/customer/personal/' + $("#u").text()
+            })
+            $("#title").blur(function () {
+                if ($("#title").val() != "") {
+                    $.ajax({
+                        type: "post",
+                        url: "/customer_data/lease_title",
+                        data: {title: $("#title").val()},
+                        success: function (res) {
+                            if (res == 0) {
+                                $("#title_tie").html("")
+                            } else {
+                                $("#title_tie").html("<p style='color: red'>标题已被使用</p>")
+                            }
+                        },
+                        error: function () {
+                            alert("error")
+                        }
+                    })
+                } else {
+                    $("#title_tie").html("")
+                }
+            })
+            $("#pkLeaseRoomBasic_area").blur(function () {
+                if ($("#pkLeaseRoomBasic_area").val() != "") {
+                    if ($("#pkLeaseRoomBasic_area").val().search(/^(\-|\+)?\d+(\.\d+)?$/)) {
+                        $("#pkLeaseRoomBasic_area_tie").html("<p style='color: red'>只能填数字</p>")
+                    } else {
+                        $("#pkLeaseRoomBasic_area_tie").html("")
+                    }
+                }
+            })
+            $("#pkLeaseRoomBasic_floorNum").blur(function () {
+                if ($("#pkLeaseRoomBasic_floorNum").val() != "") {
+                    if ($("#pkLeaseRoomBasic_floorNum").val().search(/^(\-|\+)?\d+(\.\d+)?$/)) {
+                        $("#pkLeaseRoomBasic_floorNum_tie").html("<p style='color: red'>只能填数字</p>")
+                    } else {
+                        $("#pkLeaseRoomBasic_floorNum_tie").html("")
+                    }
+                }
+            })
+            $("#pkLeasePrice_rent").blur(function () {
+                if ($("#pkLeasePrice_rent").val() != "") {
+                    if ($("#pkLeasePrice_rent").val().search(/^(\-|\+)?\d+(\.\d+)?$/)) {
+                        $("#pkLeasePrice_rent_tie").html("<p style='color: red'>只能填数字</p>")
+                    } else {
+                        $("#pkLeasePrice_rent_tie").html("")
+                    }
+                }
+            })
+            $("#pkLeasePrice_deposit").blur(function () {
+                if ($("#pkLeasePrice_deposit").val() != "") {
+                    if ($("#pkLeasePrice_deposit").val().search(/^(\-|\+)?\d+(\.\d+)?$/)) {
+                        $("#pkLeasePrice_deposit_tie").html("<p style='color: red'>只能填数字</p>")
+                    } else {
+                        $("#pkLeasePrice_deposit_tie").html("")
+                    }
+                }
+            })
+        })
+
+        // 修改
+        function change() {
+            $("#title").removeAttr("readonly")
+            $("#county").removeAttr("readonly")
+            $("#location").removeAttr("readonly")
+            $("#apartment").removeAttr("readonly")
+            $("#pkLeaseRoomBasic_area").removeAttr("readonly")
+            $("#pkLeaseRoomBasic_orientation").removeAttr("readonly")
+            $("#pkLeaseRoomBasic_checkIn").removeAttr("readonly")
+            $("#pkLeaseRoomBasic_floor").removeAttr("readonly")
+            $("#pkLeaseRoomBasic_floorNum").removeAttr("readonly")
+            $("#pkLeaseRoomBasic_ladder").removeAttr("readonly")
+            $("#pkLeaseRoomBasic_parking").removeAttr("readonly")
+            $("#pkLeaseRoomBasic_water").removeAttr("readonly")
+            $("#pkLeaseRoomBasic_electricity").removeAttr("readonly")
+            $("#pkLeaseRoomBasic_gas").removeAttr("readonly")
+            $("#pkLeaseRoomBasic_heating").removeAttr("readonly")
+            $("#pkLeaseRoomBasic_term").removeAttr("readonly")
+            $("#pkLeaseRoomBasic_inspection").removeAttr("readonly")
+            $("#pkLeasePrice_payment").removeAttr("readonly")
+            $("#pkLeasePrice_rent").removeAttr("readonly")
+            $("#pkLeasePrice_deposit").removeAttr("readonly")
+            $("#nsd1").show()
+            $(".img_b").show()
+            $("#but").html(
+                "<div class='col-md-6 col-md-offset-3'>" +
+                "<button type='button' class='btn btn-success' onclick='update()'>提交</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                "<button type='button' class='btn btn-danger' onclick='window.location.reload()'>取消</button></div>"
+            )
+            $("#mode").show()
+            $("#pkLeaseRoomMating_washing").show()
+            $("#pkLeaseRoomMating_air").show()
+            $("#pkLeaseRoomMating_wardrobe").show()
+            $("#pkLeaseRoomMating_television").show()
+            $("#pkLeaseRoomMating_fridge").show()
+            $("#pkLeaseRoomMating_heater").show()
+            $("#pkLeaseRoomMating_bed").show()
+            $("#pkLeaseRoomMating_heating").show()
+            $("#pkLeaseRoomMating_broadband").show()
+            $("#pkLeaseRoomMating_gas").show()
+            $("#mode1").hide()
+            $("#pkLeaseRoomMating_washing1").hide()
+            $("#pkLeaseRoomMating_air1").hide()
+            $("#pkLeaseRoomMating_wardrobe1").hide()
+            $("#pkLeaseRoomMating_television1").hide()
+            $("#pkLeaseRoomMating_fridge1").hide()
+            $("#pkLeaseRoomMating_heater1").hide()
+            $("#pkLeaseRoomMating_bed1").hide()
+            $("#pkLeaseRoomMating_heating1").hide()
+            $("#pkLeaseRoomMating_broadband1").hide()
+            $("#pkLeaseRoomMating_gas1").hide()
+        }
+
+        // 删除
+        function deleteImg(x) {
+            var flag = $("#delete_img input").val()
+            if(!flag){
+                $("#delete_img").append(
+                    "<input name='deleteImg[" +
+                    0 +
+                    "]" +
+                    "' value='" +
+                    x +
+                    "' placeholder='" +
+                    0 +
+                    "'/>"
+                )
+            }else {
+                var now = $("#delete_img input:last").attr("placeholder")
+                $("#delete_img").append(
+                    "<input name='deleteImg[" +
+                    (++now) +
+                    "]" +
+                    "' value='" +
+                    x +
+                    "' placeholder='" +
+                    now +
+                    "'/>"
+                )
+            }
+            var id = '#' + x
+            $(id).hide()
+        }
+
+        function dele() {
+            $.ajax({
+                type: "post",
+                dataType: "json",
+                url: "/customer_data/delete_lease_room",
+                data: {pk: $("#pkLeaseRoom").val()},
+                success: function (res) {
+                    if (res === 0) {
+                        alert("删除失败")
+                    } else {
+                        alert("删除成功")
+                    }
+                    window.location.href= '/customer/personal/' + $("#u").text()
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+
+        //提交
+        function update() {
+            if ($("#title").val() === "" ||
+                $("#county").val() === "" ||
+                $("#location").val() === "" ||
+                $("#apartment").val() === "" ||
+                $("#pkLeaseRoomBasic_area").val() === "" ||
+                $("#pkLeaseRoomBasic_orientation").val() === "" ||
+                $("#pkLeaseRoomBasic_checkIn").val() === "" ||
+                $("#pkLeaseRoomBasic_floor").val() === "" ||
+                $("#pkLeaseRoomBasic_floorNum").val() === "" ||
+                $("#pkLeaseRoomBasic_ladder").val() === "" ||
+                $("#pkLeaseRoomBasic_parking").val() === "" ||
+                $("#pkLeaseRoomBasic_water").val() === "" ||
+                $("#pkLeaseRoomBasic_electricity").val() === "" ||
+                $("#pkLeaseRoomBasic_gas").val() === "" ||
+                $("#pkLeaseRoomBasic_heating").val() === "" ||
+                $("#pkLeaseRoomBasic_term").val() === "" ||
+                $("#pkLeaseRoomBasic_inspection").val() === "" ||
+                $("#pkLeasePrice_payment").val() === "" ||
+                $("#pkLeasePrice_rent").val() === "" ||
+                $("#pkLeasePrice_deposit").val() === "" ||
+                $("#title_tie p").text() !== '' ||
+                $("#pkLeaseRoomBasic_area_tie p").text() !== "" ||
+                $("#pkLeaseRoomBasic_floorNum_tie p").text() !== "" ||
+                $("#pkLeasePrice_rent_tie p").text() !== "" ||
+                $("#pkLeasePrice_deposit_tie p").text() !== ""
+            ) {
+                alert("请填好所有内容后再提交")
+            } else {
+                $.ajax({
+                    type: "post",
+                    data: $("#lease_form").serialize(),
+                    url: "/customer_data/update_lease_room",
+                    success: function (res) {
+                        if (res == 0) {
+                            alert("修改失败")
+                        } else {
+                            alert("修改成功")
+                            window.location.reload()
+                        }
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                })
+            }
+        }
+
+        // 新增
+        function doLease() {
+            if ($("#title").val() === "" ||
+                $("#county").val() === "" ||
+                $("#location").val() === "" ||
+                $("#apartment").val() === "" ||
+                $("#pkLeaseRoomBasic_area").val() === "" ||
+                $("#pkLeaseRoomBasic_orientation").val() === "" ||
+                $("#pkLeaseRoomBasic_checkIn").val() === "" ||
+                $("#pkLeaseRoomBasic_floor").val() === "" ||
+                $("#pkLeaseRoomBasic_floorNum").val() === "" ||
+                $("#pkLeaseRoomBasic_ladder").val() === "" ||
+                $("#pkLeaseRoomBasic_parking").val() === "" ||
+                $("#pkLeaseRoomBasic_water").val() === "" ||
+                $("#pkLeaseRoomBasic_electricity").val() === "" ||
+                $("#pkLeaseRoomBasic_gas").val() === "" ||
+                $("#pkLeaseRoomBasic_heating").val() === "" ||
+                $("#pkLeaseRoomBasic_term").val() === "" ||
+                $("#pkLeaseRoomBasic_inspection").val() === "" ||
+                $("#pkLeasePrice_payment").val() === "" ||
+                $("#pkLeasePrice_rent").val() === "" ||
+                $("#pkLeasePrice_deposit").val() === "" ||
+                !$("#img input").val() ||
+                $("#title_tie p").text() !== '' ||
+                $("#pkLeaseRoomBasic_area_tie p").text() !== "" ||
+                $("#pkLeaseRoomBasic_floorNum_tie p").text() !== "" ||
+                $("#pkLeasePrice_rent_tie p").text() !== "" ||
+                $("#pkLeasePrice_deposit_tie p").text() !== ""
+            ) {
+                alert("请填好所有内容后再提交")
+            } else {
+                $.ajax({
+                    type: "post",
+                    data: $("#lease_form").serialize(),
+                    url: "/customer_data/do_lease_room",
+                    success: function (res) {
+                        if (!res) {
+                            alert("新增失败")
+                        } else {
+                            o(res)
+                        }
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                })
+            }
+        }
+
+        function o(x) {
+            $.ajax({
+                dataType: "json",
+                type: "post",
+                data: {
+                    cus: $("#u").text(),
+                    room: x,
+                    type: "lease"
+                },
+                url: "/customer_data/do_owner",
+                success: function (res) {
+                    if (res == 0) {
+                        alert("新增失败")
+                    } else {
+                        alert("新增成功")
+                        window.location.href = '/customer/personal/' + $("#u").text()
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+
+    </script>
+
+<body data-spy="scroll" data-target="#myScrollspy">
+<div class="container">
+    <div class="jumbotron">
+        <h1>广州房源信息系统</h1>
+    </div>
+    <div class="row">
+        <div class="col-xs-3" id="myScrollspy">
+            <ul class="nav nav-tabs nav-stacked" data-spy="affix" data-offset-top="125">
+                <li><a href="/visitor/index">二手房</a></li>
+                <li><a href="/visitor/lease">租房</a></li>
+                <li><a href="/visitor/village">小区</a></li>
+                <li sec:authorize="!isAuthenticated()"><a data-toggle="modal" data-target="#addModal">登录/注册</a></li>
+                <li sec:authorize="isAuthenticated()" class="active">
+                    <a id="person"><span class="glyphicon glyphicon-ok-circle" style="color: green"></span>
+                        <span sec:authentication="name" id="u"></span></a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-9">
+            <form id="lease_form">
+                <input hidden id="pkLeaseRoom" name="pkLeaseRoom">
+                <div id="nsd1">
+                    <div id="wrapper">
+                        <div id="container">
+                            <!--头部，相册选择和格式选择-->
+                            <div id="uploader">
+                                <div class="queueList">
+                                    <div id="dndArea" class="placeholder">
+                                        <div id="filePicker"></div>
+                                        <p>或将照片拖到这里，单次最多可选300张</p>
+                                    </div>
+                                </div>
+                                <div class="statusBar" style="display:none;">
+                                    <div class="info"></div>
+                                    <div class="btns">
+                                        <div id="filePicker2"></div>
+                                        <div class="uploadBtn">开始上传</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="nsd2"></div>
+                <br>
+                <div class="x_panel">
+                    <div class="x_content">
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="title">标题
+                                <span class="required" style="color: red;">*</span>
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="title" name="title"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-12 col-sm-12" id="title_tie" style="text-align: center">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="county">所在县镇
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="county" name="county"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="county_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="location">具体地址
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="location" name="location"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <div class="col-md-3 col-sm-3" id="location_tie">
+                                </div>
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="apartment">户型
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="apartment" name="apartment"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <div class="col-md-3 col-sm-3" id="apartment_tie">
+                                </div>
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="mode">模式
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12" id="mode">
+                                <label class="radio-inline">
+                                    <input type="radio" name="mode" id="mode_t" value="1"> 合租
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="mode" id="mode_f" value="0"> 整租
+                                </label>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12" id="mode1"></div>
+                            <div class="col-md-3 col-sm-3" id="mode_tie">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="img" hidden></div>
+                    <div id="delete_img" hidden></div>
+                </div>
+                <br>
+                <hr>
+                <div class="x_panel">
+                    <div class="x_content">
+                        <input hidden id="pkLeaseRoomBasic_pkLeaseRoomBasic" name="pkLeaseRoomBasic.pkLeaseRoomBasic">
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkLeaseRoomBasic_area">面积
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group">
+                                <input type="text" id="pkLeaseRoomBasic_area" name="pkLeaseRoomBasic.area"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <span class="input-group-addon">平米</span>
+                            </div>
+                            <div class="col-md-12 col-sm-12" id="pkLeaseRoomBasic_area_tie"
+                                 style="text-align: center"></div>
+                        </div>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkLeaseRoomBasic_orientation">朝向
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkLeaseRoomBasic_orientation" name="pkLeaseRoomBasic.orientation"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomBasic_orientation_tie">
+                            </div>
+                        </div>
+                        <br><br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkLeaseRoomBasic_checkIn">入住
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkLeaseRoomBasic_checkIn" name="pkLeaseRoomBasic.checkIn"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomBasic_checkIn_tie">
+                            </div>
+
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkLeaseRoomBasic_floor">楼层
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkLeaseRoomBasic_floor" name="pkLeaseRoomBasic.floor"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomBasic_floor_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkLeaseRoomBasic_floorNum">总楼层数
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group">
+                                <input type="text" id="pkLeaseRoomBasic_floorNum" name="pkLeaseRoomBasic.floorNum"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <span class="input-group-addon">层</span>
+                            </div>
+                            <div class="col-md-12 col-sm-12" id="pkLeaseRoomBasic_floorNum_tie"
+                                 style="text-align: center"></div>
+                        </div>
+                        <br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkLeaseRoomBasic_ladder">电梯
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 ">
+                                <input type="text" id="pkLeaseRoomBasic_ladder" name="pkLeaseRoomBasic.ladder"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomBasic_ladder_tie">
+
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkLeaseRoomBasic_parking">车位
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkLeaseRoomBasic_parking" name="pkLeaseRoomBasic.parking"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomBasic_parking_tie">
+                            </div>
+
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkLeaseRoomBasic_water">用水
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkLeaseRoomBasic_water" name="pkLeaseRoomBasic.water"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomBasic_water_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkLeaseRoomBasic_electricity">用电
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkLeaseRoomBasic_electricity" name="pkLeaseRoomBasic.electricity"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomBasic_electricity_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkLeaseRoomBasic_gas">燃气
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkLeaseRoomBasic_gas" name="pkLeaseRoomBasic.gas"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomBasic_gas_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkLeaseRoomBasic_heating">采暖
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkLeaseRoomBasic_heating" name="pkLeaseRoomBasic.heating"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomBasic_heating_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkLeaseRoomBasic_term">租期
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkLeaseRoomBasic_term" name="pkLeaseRoomBasic.term"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomBasic_term_tie">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkLeaseRoomBasic_inspection">看房
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkLeaseRoomBasic_inspection" name="pkLeaseRoomBasic.inspection"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomBasic_inspection_tie">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <hr>
+                <div class="x_panel">
+                    <div class="x_content">
+                        <div class="item form-group col-md-6">
+                            <input hidden id="pkLeaseRoomMating_pkLeaseRoomMating"
+                                   name="pkLeaseRoomMating.pkLeaseRoomMating">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">洗衣机
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_washing">
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.washing"
+                                           id="pkLeaseRoomMating_washing_t" value="1"> 有
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.washing"
+                                           id="pkLeaseRoomMating_washing_f" value="0"> 无
+                                </label>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_washing1"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomMating_washing_tie">
+                            </div>
+                        </div>
+                        <div class="item form-group col-md-6">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">空调
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_air">
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.air" id="pkLeaseRoomMating_air_t"
+                                           value="1"> 有
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.air" id="pkLeaseRoomMating_air_f"
+                                           value="0"> 无
+                                </label>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_air1"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomMating_air_tie">
+                            </div>
+                        </div>
+                        <div class="item form-group col-md-6">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">衣柜
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_wardrobe">
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.wardrobe"
+                                           id="pkLeaseRoomMating_wardrobe_t" value="1"> 有
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.wardrobe"
+                                           id="pkLeaseRoomMating_wardrobe_f" value="0"> 无
+                                </label>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_wardrobe1"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomMating_wardrobe_tie">
+                            </div>
+                        </div>
+                        <div class="item form-group col-md-6">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">电视
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_television">
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.television"
+                                           id="pkLeaseRoomMating_television_t" value="1"> 有
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.television"
+                                           id="pkLeaseRoomMating_television_f" value="0"> 无
+                                </label>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group"
+                                 id="pkLeaseRoomMating_television1"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomMating_television_tie">
+                            </div>
+                        </div>
+                        <div class="item form-group col-md-6">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">冰箱
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_fridge">
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.fridge" id="pkLeaseRoomMating_fridge_t"
+                                           value="1"> 有
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.fridge" id="pkLeaseRoomMating_fridge_f"
+                                           value="0"> 无
+                                </label>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_fridge1"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomMating_fridge_tie">
+                            </div>
+                        </div>
+                        <div class="item form-group col-md-6">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">热水器
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_heater">
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.heater" id="pkLeaseRoomMating_heater_t"
+                                           value="1"> 有
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.heater" id="pkLeaseRoomMating_heater_f"
+                                           value="0"> 无
+                                </label>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_heater1"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomMating_heater_tie">
+                            </div>
+                        </div>
+                        <div class="item form-group col-md-6">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">床
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_bed">
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.bed" id="pkLeaseRoomMating_bed_t"
+                                           value="1"> 有
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.bed" id="pkLeaseRoomMating_bed_f"
+                                           value="0"> 无
+                                </label>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_bed1"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomMating_bed_tie">
+                            </div>
+                        </div>
+                        <div class="item form-group col-md-6">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">暖气
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_heating">
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.heating"
+                                           id="pkLeaseRoomMating_heating_t" value="1"> 有
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.heating"
+                                           id="pkLeaseRoomMating_heating_f" value="0"> 无
+                                </label>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_heating1"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomMating_heating_tie">
+                            </div>
+                        </div>
+                        <div class="item form-group col-md-6">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">宽带
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_broadband">
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.broadband"
+                                           id="pkLeaseRoomMating_broadband_t" value="1"> 有
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.broadband"
+                                           id="pkLeaseRoomMating_broadband_f" value="0"> 无
+                                </label>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group"
+                                 id="pkLeaseRoomMating_broadband1"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomMating_broadband_tie">
+                            </div>
+                        </div>
+                        <div class="item form-group col-md-6">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">天然气
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_gas">
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.gas" id="pkLeaseRoomMating_gas_t"
+                                           value="1"> 有
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="pkLeaseRoomMating.gas" id="pkLeaseRoomMating_gas_f"
+                                           value="0"> 无
+                                </label>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group" id="pkLeaseRoomMating_gas1"></div>
+                            <div class="col-md-3 col-sm-3" id="pkLeaseRoomMating_gas_tie">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <hr>
+                <div class="x_panel">
+                    <div class="x_content">
+                        <input hidden id="pkLeasePrice_pkLeasePrice" name="pkLeasePrice.pkLeasePrice">
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkLeasePrice_payment">付款方式
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input type="text" id="pkLeasePrice_payment" name="pkLeasePrice.payment"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                            </div>
+                            <div class="col-md-3 col-sm-3" id="pkLeasePrice_payment_tie">
+                            </div>
+                        </div>
+                        <br>
+                        <br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkLeasePrice_rent">租金
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group">
+                                <input type="text" id="pkLeasePrice_rent" name="pkLeasePrice.rent"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <span class="input-group-addon">元/月</span>
+                            </div>
+                            <div class="col-md-12 col-sm-12" id="pkLeasePrice_rent_tie"
+                                 style="text-align: center"></div>
+                        </div>
+                        <br>
+                        <div class="item form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="pkLeasePrice_deposit">押金
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 input-group">
+                                <input type="text" id="pkLeasePrice_deposit" name="pkLeasePrice.deposit"
+                                       required="required"
+                                       class="form-control col-md-7 col-xs-12">
+                                <span class="input-group-addon">元</span>
+                            </div>
+                            <div class="col-md-12 col-sm-12" id="pkLeasePrice_deposit_tie" style="text-align: center">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="but" style="text-align: center">
+                    <div class='col-md-6 col-md-offset-3'>
+                        <button type='button' class='btn btn-success' onclick='doLease()'>提交</button>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <button type='button' class='btn btn-danger' onclick='window.history.back(-1)'>取消</button>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <br>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

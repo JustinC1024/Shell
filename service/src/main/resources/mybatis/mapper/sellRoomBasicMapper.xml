@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.building.SellRoomBasicMapper">
+
+    <insert id="doSellRoomBasic" parameterType="sellRoomBasic">
+        INSERT INTO db_sell_room_basic (pk_sell_room_basic, apartment, floor, floor_num, built_up_area, area, type,
+        orientation, building, decoration, structure, ladder, property_years, ts, dr) VALUES (
+          #{pkSellRoomBasic}, #{apartment}, #{floor}, #{floorNum}, #{builtUpArea}, #{area}, #{type}, #{orientation},
+          #{building}, #{decoration}, #{structure}, #{ladder}, #{propertyYears}, #{ts}, 0
+        )
+    </insert>
+
+    <update id="updateSellRoomBasic" parameterType="sellRoomBasic">
+        UPDATE db_sell_room_basic
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <otherwise>
+                    apartment = #{apartment}, floor = #{floor}, floor_num = #{floorNum}, built_up_area = #{builtUpArea},
+                    area = #{area}, type = #{type}, orientation = #{orientation}, building = #{building},
+                    decoration = #{decoration}, structure = #{structure}, ladder = #{ladder},
+                    property_years = #{propertyYears}
+                </otherwise>
+            </choose>
+        </set>
+        <where>pk_sell_room_basic = #{pkSellRoomBasic}</where>
+    </update>
+
+</mapper>

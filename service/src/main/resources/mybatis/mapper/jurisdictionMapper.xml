@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.human.JurisdictionMapper">
+
+    <insert id="doJurisdiction" parameterType="jurisdiction">
+        INSERT INTO db_jurisdictuon (pk_jurisdiction, name, dr, ts) VALUES (
+          #{pkJurisdiction}, #{name}, 0, #{ts}
+        )
+    </insert>
+
+    <update id="updateJurisdiction" parameterType="String">
+        UPDATE db_jurisdiction
+        <set>
+            dr = #{dr}
+        </set>
+        <where>pk_jurisdiction = #{pk}</where>
+    </update>
+
+    <select id="getAllJurisdiction" resultType="jurisdiction">
+        SELECT pk_jurisdiction, name FROM db_jurisdiction
+    </select>
+
+</mapper>

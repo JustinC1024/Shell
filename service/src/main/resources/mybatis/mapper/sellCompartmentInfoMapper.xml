@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.building.SellCompartmentInfoMapper">
+
+    <insert id="doSellCompartmentInfo" parameterType="sellCompartmentInfo">
+        INSERT INTO db_sell_compartment_info (pk_sell_compartment_info, area, direction, windows, spare1,
+         pk_sell_room_compartment, ts, dr) VALUES (
+          #{pkSellCompartmentInfo}, #{area}, #{direction}, #{windows}, #{spare1}, #{pkSellRoomCompartment}, #{ts}, 0
+        )
+    </insert>
+
+    <update id="updateSellCompartmentInfo" parameterType="sellCompartmentInfo">
+        UPDATE db_sell_compartment_info
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <otherwise>
+                    area = #{area}, direction = #{direction}, windows = #{windows}, spare1 = #{spare1},
+                    pk_sell_room_compartment = #{pkSellRoomCompartment}
+                </otherwise>
+            </choose>
+        </set>
+        <where>pk_sell_compartment_info = #{pkSellCompartmentInfo}</where>
+    </update>
+
+    <update id="updateSellCompartmentInfoByCompartment" parameterType="String">
+        UPDATE db_sell_compartment_info
+        <set>dr = 1</set>
+        <where>pk_sell_room_compartment = #{pk}</where>
+    </update>
+
+</mapper>

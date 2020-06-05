@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.record.OwnerMapper">
+
+    <insert id="doOwner" parameterType="owner">
+        INSERT INTO cmp_owner (pk_owner,pk_lease_room, pk_sell_room, pk_customer, status, dr, ts) VALUES (
+          #{pkOwner}, #{pkLeaseRoom.pkLeaseRoom}, #{pkSellRoom.pkSellRoom}, #{pkCustomer.pkCustomer}, 0, 0, #{ts}
+        )
+    </insert>
+
+    <update id="updateOwner" parameterType="owner">
+        UPDATE cmp_owner
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <when test="status != null">
+                    status = #{status}, pk_clerk = #{pkClerk.pkClerk}
+                </when>
+            </choose>
+        </set>
+        <where>pk_owner = #{pkOwner}</where>
+    </update>
+
+    <select id="getListOwner" parameterType="owner" resultType="owner">
+        SELECT
+        o.pk_owner, o.status, o.ts,
+        lr.pk_lease_room AS 'pkLeaseRoom.pkLeaseRoom', lr.title AS 'pkLeaseRoom.title',
+        sr.pk_sell_room AS 'pkSellRoom.pkSellRoom', sr.title AS 'pkSellRoom.title',
+        c.pk_customer AS 'pkCustomer.pkCustomer', c.account AS 'pkCustomer.account',
+        cl.pk_clerk AS 'pkClerk.pkClerk', cl.name AS 'pkClerk.name'
+        FROM
+        cmp_owner o
+        LEFT JOIN db_lease_room lr ON o.pk_lease_room = lr.pk_lease_room
+        LEFT JOIN db_sell_room sr ON o.pk_sell_room = sr.pk_sell_room
+        LEFT JOIN db_customer c ON o.pk_customer = c.pk_customer
+        LEFT JOIN db_clerk cl ON o.pk_clerk = cl.pk_clerk
+        <where>
+            o.dr = 0
+            <if test="status != null">
+                AND o.status = #{status}
+            </if>
+            <if test="pkLeaseRoom != null">
+                AND lr.title LIKE #{pkLeaseRoom.title}
+            </if>
+            <if test="pkSellRoom != null">
+                AND sr.title LIKE #{pkSellRoom.title}
+            </if>
+            <if test="pkCustomer != null">
+                AND c.account LIKE #{pkCustomer.account}
+            </if>
+            <if test="pkClerk != null">
+                AND cl.name LIKE #{pkClerk.name}
+            </if>
+        </where>
+        <if test='ts == "asc"'>
+            ORDER BY o.ts ASC
+        </if>
+        <if test='ts == "desc"'>
+            ORDER BY o.ts DESC
+        </if>
+    </select>
+
+    <select id="getOwnerByRoom" parameterType="String" resultType="owner">
+        SELECT pk_owner FROM cmp_owner
+        <where>
+            <choose>
+                <when test="type == 'lease'">
+                    pk_lease_room = #{pk}
+                </when>
+                <when test="type == 'sell'">
+                    pk_sell_room = #{pk}
+                </when>
+            </choose>
+        </where>
+    </select>
+
+    <update id="updateOwnerByRoom" parameterType="owner">
+        UPDATE cmp_owner
+        <set>
+            dr = 1
+        </set>
+        <where>
+          <if test="pkSellRoom != null">
+              pk_sell_room = #{pkSellRoom.pkSellRoom}
+          </if>
+            <if test="pkLeaseRoom != null">
+              pk_lease_room = #{pkLeaseRoom.pkLeaseRoom}
+          </if>
+        </where>
+    </update>
+
+</mapper>

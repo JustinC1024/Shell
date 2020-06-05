@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.building.VillageMapper">
+
+    <insert id="doVillage" parameterType="village">
+        INSERT INTO db_village (pk_village, title, introduction, county, location, consult, building_type, property,
+        company, developer , building_num, ts, dr, update_ts, room_num) VALUES(
+          #{pkVillage}, #{title}, #{introduction}, #{county}, #{location}, #{consult}, #{buildingType}, #{property},
+          #{company}, #{developer}, #{buildingNum}, #{ts}, 0, #{ts}, #{roomNum}
+        )
+    </insert>
+
+    <update id="updateVillage" parameterType="village">
+        UPDATE db_village
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <otherwise>
+                    title = #{title}, introduction = #{introduction}, county = #{county}, location = #{location},
+                    consult = #{consult}, building_type = #{buildingType}, property = #{property}, company = #{company},
+                    developer = #{developer}, building_num = #{buildingNum}, room_num = #{roomNum},
+                    update_ts = #{updateTs},
+                </otherwise>
+            </choose>
+        </set>
+        <where>pk_village = #{pkVillage}</where>
+    </update>
+
+    <select id="getListVillage" parameterType="village" resultType="village">
+        SELECT v.pk_village, v.title, v.county, v.consult, v.room_num, i.pk_village_img AS 'img.pkVillageImg'
+        FROM db_village v
+          LEFT JOIN db_village_img i ON v.pk_village = i.pk_village
+        <where>
+            i.ind = 1 AND v.dr = 0 AND i.dr = 0
+            <if test="title != null">
+                AND title LIKE #{title}
+            </if>
+            <if test="county != null">
+                AND county = #{county}
+            </if>
+        </where>
+        <if test='consult == 1'>
+            ORDER BY v.consult ASC
+        </if>
+        <if test='consult == 0'>
+            ORDER BY v.consult DESC
+        </if>
+    </select>
+
+    <select id="getVillageByPk" parameterType="String" resultMap="detailVillage">
+        SELECT v.pk_village, v.title, v.introduction, v.county, v.location, v.consult, v.building_type, v.property,
+        v.company, v.developer, v.building_num, v.room_num, update_ts, i.pk_village_img, i.ind
+        FROM db_village v
+          LEFT JOIN db_village_img i ON v.pk_village = i.pk_village
+        <where>v.dr = 0 AND i.dr = 0 AND v.pk_village = #{pk}</where>
+    </select>
+
+    <resultMap id="detailVillage" type="village">
+        <result property="pkVillage" column="pk_village"/>
+        <result property="title" column="title"/>
+        <result property="introduction" column="introduction"/>
+        <result property="county" column="county"/>
+        <result property="location" column="location"/>
+        <result property="consult" column="consult"/>
+        <result property="buildingType" column="building_type"/>
+        <result property="property" column="property"/>
+        <result property="company" column="company"/>
+        <result property="developer" column="developer"/>
+        <result property="buildingNum" column="building_num"/>
+        <result property="roomNum" column="room_num"/>
+        <result property="updateTs" column="update_ts"/>
+        <collection property="imgs" ofType="villageImg">
+            <result property="pkVillageImg" column="pk_village_img"/>
+            <result property="ind" column="ind"/>
+        </collection>
+    </resultMap>
+
+    <select id="getVillageByTitle" resultType="village" parameterType="String">
+        SELECT  * FROM db_village
+        <where>dr = 0 AND title = #{title}</where>
+    </select>
+
+</mapper>

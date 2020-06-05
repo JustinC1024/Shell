@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.building.RoomImgMapper">
+
+    <insert id="doRoomImg" parameterType="roomImg">
+        INSERT INTO db_room_img (pk_room_img, title, img, pk_room, ts, dr) VALUES (
+          #{pkRoomImg}, #{title}, #{img}, #{pkRoom}, #{ts}, 1
+        )
+    </insert>
+
+    <insert id="doListRoomImg" parameterType="list">
+        INSERT INTO db_room_img (pk_room_img, title, img, pk_room, ts) VALUES
+          <foreach collection="list" item="item" separator=",">
+              (#{item.pkRoomImg}, #{item.title}, #{item.img}, #{item.pkRoom}, #{item.ts})
+          </foreach>
+    </insert>
+
+    <update id="updateRoomImg" parameterType="roomImg">
+        UPDATE db_room_img
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <otherwise>
+                    title = #{title}, ind = #{ind}, pk_room = #{pkRoom}, dr = 0
+                </otherwise>
+            </choose>
+        </set>
+        <where>pk_room_img = #{pkRoomImg}</where>
+    </update>
+
+    <update id="updateListRoomImg" parameterType="list">
+        UPDATE db_room_img
+        <set>
+            dr = 1
+        </set>
+        <where>
+            pk_room_img IN
+            <foreach collection="list" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </where>
+    </update>
+
+    <select id="getRoomImgByRoom" parameterType="String" resultType="String">
+        SELECT pk_room_img FROM db_room_img
+        <where>pk_room = #{pk}</where>
+    </select>
+
+    <select id="getRoomImgByPk" parameterType="String" resultType="roomImg">
+        SELECT pk_room_img, ind FROM db_room_img
+        <where>pk_room_img = #{pk}</where>
+    </select>
+
+    <select id="getImgInRoomImgByPk" parameterType="String" resultType="roomImg">
+        SELECT img FROM db_room_img
+        <where>pk_room_img = #{pk}</where>
+    </select>
+
+</mapper>

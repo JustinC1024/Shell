@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.building.SellCompartmentTypeMapper">
+    
+    <insert id="doSellCompartmentType" parameterType="sellCompartmentType">
+        INSERT INTO db_sell_compartment_type (pk_sell_compartment_type, title, ts, dr) VALUES (
+          #{pkSellCompartmentType}, #{title}, #{ts}, 0
+        )
+    </insert>
+
+    <select id="getAllSellCompartmentType" resultType="sellCompartmentType">
+        SELECT pk_sell_compartment_type, title FROM db_sell_compartment
+        <where>dr = 0</where>
+    </select>
+
+</mapper>

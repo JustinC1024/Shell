@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.record.TempImgMapper">
+
+    <insert id="doTempImg" parameterType="tempImg">
+        INSERT INTO cmp_temp_img (pk_temp_img, pk_foreign, img, dr, ts) VALUES (
+          #{pkTempImg}, #{pkForeign}, #{img}, 0, #{ts}
+        )
+    </insert>
+
+    <update id="updateTempImg" parameterType="tempImg">
+        UPDATE cmp_temp_img
+        <set>
+            dr = #{dr}
+        </set>
+        <where>pk_temp_img = #{pkTempImg}</where>
+    </update>
+
+    <select id="getTempImgByPk" parameterType="tempImg" resultType="tempImg">
+        SELECT img FROM cmp_temp_img
+        <where>
+            dr = 0 AND pk_temp_img = #{pk}
+        </where>
+    </select>
+
+</mapper>

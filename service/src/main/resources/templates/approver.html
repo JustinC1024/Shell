@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charest="utf-8">
+    <title>approver</title>
+    <link th:href="${#request.getContextPath()} + '/css/custom.css'" rel="stylesheet">
+    <link th:href="${#request.getContextPath()} + '/css/index1.css'" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" th:href="${#request.getContextPath()} + '/webjars/bootstrap/3.3.7/css/bootstrap.min.css'">
+    <script th:src="${#request.getContextPath()} + '/webjars/jquery/2.1.1/jquery.min.js'"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" th:inline="javascript">
+        // 路径
+        var base_path = [[${#httpServletRequest.getScheme() + '://' + #httpServletRequest.getServerName() + ":" + #httpServletRequest.getServerPort() + #httpServletRequest.getContextPath()}]];
+
+        $(document).ready(function () {
+            // 个人页面
+            $("#person").click(function () {
+                window.location.href = '/nom/personal/' + $("#u").text()
+            })
+            // 上一页
+            $("#up_page1").click(function () {
+                var now = $("#now_page1").text()
+                if (now > 1) {
+                    rule(1, --now)
+                    $("#now_page1").text(now)
+                } else {
+                    alert("当前为首页")
+                }
+            });
+            // 下一页
+            $("#down_page1").click(function () {
+                var now = $("#now_page1").text()
+                if (now < $("#total1").val()) {
+                    rule(1, ++now)
+                    $("#now_page1").text(now)
+                } else {
+                    alert("当前为尾页")
+                }
+            });
+            // 上一页
+            $("#up_page2").click(function () {
+                var now = $("#now_page2").text()
+                if (now > 1) {
+                    rule(2, --now)
+                    $("#now_page2").text(now)
+                } else {
+                    alert("当前为首页")
+                }
+            });
+            // 下一页
+            $("#down_page2").click(function () {
+                var now = $("#now_page2").text()
+                if (now < $("#total2").val()) {
+                    rule(2, ++now)
+                    $("#now_page2").text(now)
+                } else {
+                    alert("当前为尾页")
+                }
+            });
+            // 上一页
+            $("#up_page3").click(function () {
+                var now = $("#now_page3").text()
+                if (now > 1) {
+                    rule(3, --now)
+                    $("#now_page3").text(now)
+                } else {
+                    alert("当前为首页")
+                }
+            });
+            // 下一页
+            $("#down_page3").click(function () {
+                var now = $("#now_page3").text()
+                if (now < $("#total3").val(res1)) {
+                    rule(3, ++now)
+                    $("#now_page3").text(now)
+                } else {
+                    alert("当前为尾页")
+                }
+            });
+
+        })
+
+        function rule(x, y){
+            if (x == 1){
+                bill(0, null, y)
+            }
+            if (x == 2){
+                bill(1, null, y)
+            }
+            if (x == 3){
+                bill(3, null, y)
+            }
+        }
+
+        // 页面初始化
+        $(window).load(
+            function () {
+                initHtml()
+            }
+        );
+
+        function initHtml() {
+            bill(0, null, 1)
+            bill(1, null, 1)
+            bill(3, null, 1)
+        }
+
+        // 订单查询
+        function bill(x, y, z) {
+            $.ajax({
+                type: "post",
+                dataType: "json",
+                url: "/clerk_data/bill",
+                data: {
+                    status: x,
+                    ts: y,
+                    nowPage: z,
+                    clerk: $("#u").text()
+                },
+                success: function (res) {
+                    if (res.length == 0) {
+                        if ( x == 0) {
+                            $("#page1").hide()
+                            $("#tab_content1").html("<div style='text-align: center'><h1>暂无信息</h1></div>")
+                        }
+                        if ( x == 1) {
+                            $("#page2").hide()
+                            $("#tab_content2").html("<div style='text-align: center'><h1>暂无信息</h1></div>")
+                        }
+                        if ( x == 3) {
+                            $("#page3").hide()
+                            $("#tab_content3").html("<div style='text-align: center'><h1>暂无信息</h1></div>")
+                        }
+
+                    } else {
+                        if (x == 0) {
+                            $("#a0").html("")
+                            for (var i = 0; i < res.length; i++) {
+                                var room
+                                if (!res[i].pkLeaseRoom) {
+                                    room = res[i].pkSellRoom.title
+                                } else if (!res[i].pkSellRoom) {
+                                    room = res[i].pkLeaseRoom.title
+                                }
+                                $("#a0").append(
+                                    "<tr><th scope='row'>" +
+                                    res[i].pkBill +
+                                    "</th><td>" +
+                                    res[i].pkCustomer.name +
+                                    "</td><td>" +
+                                    room +
+                                    "</td><td>" +
+                                    res[i].ts +
+                                    "</td>" +
+                                    "<td><div class='btn-group' data-toggle='buttons'>" +
+                                    "<label class='btn btn-primary' onclick='change(\"" +
+                                    res[i].pkBill + "\", 1)'>" +
+                                    "<input type='checkbox'> 接收</label>" +
+                                    "<label class='btn btn-danger' onclick='change(\"" +
+                                    res[i].pkBill + "\", 2)'>" +
+                                    "<input type='checkbox'> 拒绝</label>" +
+                                    "</div></td></tr>"
+                                )
+                            }
+                            if (z == 1) {
+                                $.ajax({
+                                    type: "post",
+                                    url: "/clerk_data/bill_page",
+                                    data: {
+                                        ts: null
+                                    },
+                                    dataType: "json",
+                                    success: function (res1) {
+                                        $("#total1").val(res1)
+                                        if (res1 <= 1) {
+                                            $("#page1").hide()
+                                        } else {
+                                            $("#page1").show()
+                                        }
+                                    },
+                                    error: function () {
+                                        alert("error")
+                                    }
+                                });
+                            }
+                        }
+                        if (x == 1) {
+                            $("#a1").html("")
+                            for (var i = 0; i < res.length; i++) {
+                                var room
+                                if (!res[i].pkLeaseRoom) {
+                                    room = res[i].pkSellRoom.title
+                                } else if (!res[i].pkSellRoom) {
+                                    room = res[i].pkLeaseRoom.title
+                                }
+                                $("#a1").append(
+                                    "<tr><th scope='row'>" +
+                                    res[i].pkBill +
+                                    "</th><td>" +
+                                    res[i].pkCustomer.name +
+                                    "</td><td>" +
+                                    room +
+                                    "</td><td>" +
+                                    res[i].ts +
+                                    "</td>" +
+                                    "<td><button type='button' class='btn btn-success' onclick='change(\"" +
+                                    res[i].pkBill + "\", 3)'>" +
+                                    "完成</button>" +
+                                "</td></tr>"
+                                )
+                            }
+                            if (z == 1) {
+                                $.ajax({
+                                    type: "post",
+                                    url: "/clerk_data/bill_page",
+                                    data: {
+                                        ts: null
+                                    },
+                                    dataType: "json",
+                                    success: function (res1) {
+                                        $("#total2").val(res1)
+                                        if (res1 <= 1) {
+                                            $("#page2").hide()
+                                        } else {
+                                            $("#page2").show()
+                                        }
+                                    },
+                                    error: function () {
+                                        alert("error")
+                                    }
+                                });
+                            }
+                        }
+                        if (x == 3) {
+                            $("#a3").html("")
+                            for (var i = 0; i < res.length; i++) {
+                                var room
+                                if (!res[i].pkLeaseRoom) {
+                                    room = res[i].pkSellRoom.title
+                                } else if (!res[i].pkSellRoom) {
+                                    room = res[i].pkLeaseRoom.title
+                                }
+                                $("#a3").append(
+                                    "<tr><th scope='row'>" +
+                                    res[i].pkBill +
+                                    "</th><td>" +
+                                    res[i].pkCustomer.name +
+                                    "</td><td>" +
+                                    room +
+                                    "</td><td>" +
+                                    res[i].ts +
+                                    "</td></tr>"
+                                )
+                            }
+                            if (z == 1) {
+                                $.ajax({
+                                    type: "post",
+                                    url: "/clerk_data/bill_page",
+                                    data: {
+                                        ts: null
+                                    },
+                                    dataType: "json",
+                                    success: function (res1) {
+                                        $("#total3").val(res1)
+                                        if (res1 <= 1) {
+                                            $("#page3").hide()
+                                        } else {
+                                            $("#page3").show()
+                                        }
+                                    },
+                                    error: function () {
+                                        alert("error")
+                                    }
+                                });
+                            }
+                        }
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+
+        // 修改订单
+        function change(x, y) {
+            $.ajax({
+                type: "post",
+                dataType: "json",
+                url: "/clerk_data/update_bill",
+                data: {
+                    pk: x,
+                    status: y
+                },
+                success: function (res) {
+                    if (res == 0) {
+                        alert("执行失败")
+                    }else {
+                        alert("执行成功")
+                        window.location.reload()
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+    </script>
+</head>
+
+<body data-spy="scroll" data-target="#myScrollspy">
+<div class="container">
+    <div class="jumbotron">
+        <h1>广州房源信息系统</h1>
+    </div>
+    <div class="row">
+        <div class="col-xs-3" id="myScrollspy">
+            <ul class="nav nav-tabs nav-stacked nn" data-spy="affix" data-offset-top="125">
+                <li class="active"><a href="#section-1">订单</a></li>
+                <li sec:authorize="isAuthenticated()">
+                    <a id="person"><span class="glyphicon glyphicon-ok-circle" style="color: green"></span>
+                        <span sec:authentication="name" id="u"></span></a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-9">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-bars"></i>&nbsp;&nbsp;&nbsp;订单</h2>
+
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+
+                        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                                <li role="presentation" class="active"><a href="#tab_content1" id="home-tab" role="tab"
+                                                                          data-toggle="tab" aria-expanded="true">待处理</a>
+                                </li>
+                                <li role="presentation" class=""><a href="#tab_content2" role="tab" id="profile-tab"
+                                                                    data-toggle="tab" aria-expanded="false">处理中</a></li>
+                                <li role="presentation" class=""><a href="#tab_content3" role="tab" id="profile-tab2"
+                                                                    data-toggle="tab" aria-expanded="false">已完成</a></li>
+                            </ul>
+                            <div id="myTabContent" class="tab-content">
+                                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1"
+                                     aria-labelledby="home-tab">
+                                    <div class="x_panel">
+                                        <div class="x_content">
+                                            <table class="table">
+                                                <thead>
+                                                <tr>
+                                                    <th>订单号</th>
+                                                    <th>用户</th>
+                                                    <th>房屋</th>
+                                                    <th>时间</th>
+                                                    <th>编辑</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="a0"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <input id="total1" hidden>
+                                    <div class="col-lg-12" style="margin-top: 0px; text-align: center">
+                                        <div>
+                                            <ul class="pagination pagination-lg" id="page1">
+                                                <li><a href="#" id="up_page1">&laquo;</a></li>
+                                                <li><a href="#" id="now_page1">1</a></li>
+                                                <li><a href="#" id="down_page1">&raquo;</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content2"
+                                     aria-labelledby="profile-tab">
+                                    <div class="x_panel">
+                                        <div class="x_content">
+                                            <table class="table">
+                                                <thead>
+                                                <tr>
+                                                    <th>订单号</th>
+                                                    <th>用户</th>
+                                                    <th>房屋</th>
+                                                    <th>时间</th>
+                                                    <th>编辑</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="a1"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <input hidden id="total2">
+                                    <div class="col-lg-12" style="margin-top: 0px;" id="page2">
+                                        <div>
+                                            <ul class="pagination pagination-lg text-align: center">
+                                                <li><a href="#" id="up_page2">&laquo;</a></li>
+                                                <li><a href="#" id="now_page2">1</a></li>
+                                                <li><a href="#" id="down_page2">&raquo;</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="tab_content3"
+                                     aria-labelledby="profile-tab" style="height: 500px;">
+                                    <div class="x_panel">
+                                        <div class="x_content">
+                                            <table class="table">
+                                                <thead>
+                                                <tr>
+                                                    <th>订单号</th>
+                                                    <th>用户</th>
+                                                    <th>房屋</th>
+                                                    <th>时间</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="a3"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <input id="total3" hidden>
+                                    <div class="col-lg-12" style="margin-top: 0px;text-align: center">
+                                        <div>
+                                            <ul class="pagination pagination-lg" id="page3">
+                                                <li><a href="#" id="up_page3">&laquo;</a></li>
+                                                <li><a href="#" id="now_page3">1</a></li>
+                                                <li><a href="#" id="down_page3">&raquo;</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

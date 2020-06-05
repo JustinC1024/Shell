@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.human.SupportMapper">
+
+    <insert id="doSupport" parameterType="support">
+        INSERT INTO db_support (pk_support, title, instruction, dr, ts) VALUES (
+          #{pkSupport}, #{title}, #{instruction}, 0, #{ts}
+        )
+    </insert>
+
+    <delete id="deleteSupport">
+        DELETE FROM db_support
+        <where>dr = #{dr} AND ts = #{ts}</where>
+    </delete>
+
+    <update id="updateSupport" parameterType="support">
+        UPDATE db_support
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <otherwise>
+                    title = #{title}, instruction = #{instruction}
+                </otherwise>
+            </choose>
+        </set>
+        <where>pk_support = #{pkSupport}</where>
+    </update>
+
+    <select id="getListSupport" parameterType="String" resultType="support">
+        SELECT pk_support, title FROM db_support
+        <where>
+            dr = 0
+            <if test="title != null">
+                AND title = #{title}
+            </if>
+        </where>
+    </select>
+
+    <select id="getSupportByPk" parameterType="String" resultType="support">
+        SELECT pk_support, title, instruction FROM db_support
+        <where>dr = 0 AND pk_support = #{pk}</where>
+    </select>
+
+</mapper>

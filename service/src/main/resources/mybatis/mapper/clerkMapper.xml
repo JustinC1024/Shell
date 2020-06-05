@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.human.ClerkMapper">
+
+    <insert id="doClerk" parameterType="clerk">
+        INSERT INTO db_clerk (pk_clerk, name, img, introduction, phone, account, password, pk_jurisdiction, parent,
+        dr, ts) VALUES (
+          #{pkClerk}, #{name}, #{img}, #{introduction}, #{phone}, #{account}, #{password},
+          #{pkJurisdiction.pkJurisdiction}, #{parent}, 0, #{ts}
+        )
+    </insert>
+
+    <update id="updateClerk" parameterType="clerk">
+        UPDATE db_clerk
+        <set>
+            <choose>
+                <when test="dr == null">
+                    <choose>
+                        <when test="password != null">
+                            password = #{password}
+                        </when>
+                        <when test="pkJurisdiction != null">
+                            pk_jurisdiction = #{pkJurisdiction.pkJurisdiction}
+                        </when>
+                        <otherwise>
+                            introduction = #{introduction}, phone = #{phone}, img = #{img}
+                        </otherwise>
+                    </choose>
+                </when>
+                <otherwise>
+                    dr = #{dr}
+                </otherwise>
+            </choose>
+        </set>
+        <where> pk_clerk = #{pkClerk}</where>
+    </update>
+
+    <select id="getListClerk" parameterType="clerk" resultType="clerk">
+        SELECT
+          c.pk_clerk, c.name, c.account, c.img, c.introduction, c.password, c.ts, j.name AS 'pkJurisdiction.name'
+        FROM
+          db_clerk c LEFT JOIN db_jurisdiction j ON c.pk_jurisdiction = j.pk_jurisdiction
+        <where>
+            c.dr = 0
+            <choose>
+                <when test="account != null">
+                    AND  c.account = #{account}
+                </when>
+                <when test="phone != null">
+                    AND c.phone = #{phone}
+                </when>
+                <otherwise>
+                    <if test="pkClerk != null">
+                        AND c.pk_clerk != #{pkClerk}
+                    </if>
+                    <if test="name != null">
+                        AND c.name LIKE #{name}
+                    </if>
+                    <if test="pkJurisdiction != null">
+                        AND c.pk_jurisdiction = #{pkJurisdiction.pkJurisdiction}
+                    </if>
+                    <if test="parent != null">
+                        AND parent = #{parent}
+                    </if>
+                </otherwise>
+            </choose>
+        </where>
+        <if test='ts == "asc"'>
+            ORDER BY c.ts ASC
+        </if>
+        <if test='ts == "desc"'>
+            ORDER BY c.ts DESC
+        </if>
+    </select>
+
+    <select id="getClerkByPk" parameterType="String" resultType="clerk">
+        SELECT
+          c.pk_clerk, c.name, c.img, c.introduction, c.phone, c.account, c.password, c.parent, c.ts,
+          j.pk_jurisdiction AS 'pkJurisdiction.pkJurisdiction', j.name AS 'pkJurisdiction.name'
+        FROM
+          db_clerk c LEFT JOIN db_jurisdiction j ON c.pk_jurisdiction = j.pk_jurisdiction
+        <where>c.dr = 0 AND j.dr = 0 AND c.pk_clerk = #{pk}</where>
+    </select>
+
+    <select id="getClerkByAccount" parameterType="String" resultType="clerk">
+        SELECT
+          c.pk_clerk, c.name, c.img, c.introduction, c.phone, c.account, c.password, c.parent, c.ts,
+          j.pk_jurisdiction AS 'pkJurisdiction.pkJurisdiction', j.name AS 'pkJurisdiction.name',
+          j.spare1 AS 'pkJurisdiction.spare1'
+        FROM
+          db_clerk c LEFT JOIN db_jurisdiction j ON c.pk_jurisdiction = j.pk_jurisdiction
+        <where>c.dr = 0 AND c.account = #{account}</where>
+    </select>
+
+    <select id="getAllClerk" resultType="clerk">
+        SELECT
+          c.pk_clerk, c.img, c.name, c.introduction
+        FROM
+          db_clerk c LEFT JOIN db_jurisdiction j ON c.pk_jurisdiction = j.pk_jurisdiction
+        <where>
+          c.dr = 0 AND c.name IS NOT NULL AND j.spare1 = 'ROLE_APPROVER'
+        </where>
+    </select>
+
+</mapper>

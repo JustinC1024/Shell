@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.building.SellPriceMapper">
+
+    <insert id="doSellPrice" parameterType="sellPrice">
+        INSERT INTO db_sell_price (pk_sell_price, total_price, unit_price, ts, dr) VALUES (
+          #{pkSellPrice}, #{totalPrice}, #{unitPrice}, #{ts}, 0
+        )
+    </insert>
+
+    <update id="updateSellPrice" parameterType="sellPrice">
+        UPDATE db_sell_price
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <otherwise>
+                    total_price = #{totalPrice},unit_price = #{unitPrice}
+                </otherwise>
+            </choose>
+        </set>
+        <where>pk_sell_price = #{pkSellPrice}</where>
+    </update>
+
+</mapper>

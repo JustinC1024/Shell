@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.human.CustomerMapper">
+
+    <insert id="doCustomer" parameterType="customer">
+        INSERT INTO db_customer (pk_customer, account, password, name, identity, mail, phone, dr, ts) VALUES (
+          #{pkCustomer}, #{account}, #{password}, #{name}, #{identity}, #{mail}, #{account}, 0, #{ts}
+        )
+    </insert>
+
+    <update id="updateCustomer" parameterType="customer">
+        UPDATE db_customer
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <otherwise>
+                    <choose>
+                        <when test="password != null">
+                            password = #{password}
+                        </when>
+                        <otherwise>
+                            portrait = #{portrait}, name = #{name}, identity = #{identity}, city = #{city},
+                            gender = #{gender}, birth = #{birth}, mail = #{mail},
+                            <if test="account != null">
+                                phone = #{account}, account = #{account}
+                            </if>
+                        </otherwise>
+                    </choose>
+                </otherwise>
+            </choose>
+        </set>
+        <where>pk_customer = #{pkCustomer}</where>
+    </update>
+
+    <select id="getListCustomer" parameterType="customer" resultType="customer">
+        SELECT pk_customer, account, password, name, identity, ts
+        FROM db_customer
+        <where>
+            dr = 0
+            <choose>
+                <when test="account != null">
+                    AND account = #{account}
+                </when>
+                <when test="phone ! = null">
+                    AND phone = #{phone}
+                </when>
+                <when test="mail != null">
+                    AND mail = #{mail}
+                </when>
+                <otherwise>
+                    <if test="name != null">
+                        AND name LIKE #{name}
+                    </if>
+                </otherwise>
+            </choose>
+        </where>
+        <if test='ts == "asc"'>
+            ORDER BY c.ts ASC
+        </if>
+        <if test='ts == "desc"'>
+            ORDER BY c.ts DESC
+        </if>
+    </select>
+
+    <select id="getCustomerByPk" parameterType="String" resultType="customer">
+        SELECT pk_customer, account, password, portrait, name ,identity ,city, gender, birth, mail, phone
+        FROM db_customer
+        <where>dr = 0 AND pk_customer = #{pk}</where>
+    </select>
+
+    <select id="getCustomerByAccount" parameterType="String" resultType="customer">
+        SELECT pk_customer, account, password, portrait, name ,identity ,city, gender, birth, mail, phone
+        FROM db_customer
+        <where>dr = 0 AND account = #{account}</where>
+    </select>
+
+</mapper>

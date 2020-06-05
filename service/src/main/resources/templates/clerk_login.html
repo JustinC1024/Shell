@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>login</title>
+    <link th:href="${#request.getContextPath()} + '/css/custom.css'" rel="stylesheet">
+    <link rel="stylesheet" th:href="${#request.getContextPath()} + '/webjars/bootstrap/3.3.7/css/bootstrap.min.css'">
+    <script th:src="${#request.getContextPath()} + '/webjars/jquery/2.1.1/jquery.min.js'"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" th:inline="javascript">
+        $(document).ready(function () {
+            $("#login").click(function () {
+                if($("#account").val() == "" || $("#pw").val() == "") {
+                    alert("请填完账号和密码后再进行登录")
+                }else {
+                    $.ajax({
+                        type: "post",
+                        dataType : "json",
+                        url : "/cle/login",
+                        data : $("#form").serialize(),
+                        success : function (res) {
+                            if (!res){
+                                alert("账号或密码有误")
+                            }else if (!res.username) {
+                                alert("账号或密码有误")
+                            }else {
+                                alert("登录成功")
+                                window.location.href= "/nom/personal/" + res.username
+                            }
+                        },
+                        error : function () {
+                            alert("error")
+                        }
+                    })
+                }
+            })
+        })
+    </script>
+</head>
+
+<body class="login">
+<div>
+    <div class="login_wrapper">
+        <div class="animate form login_form">
+            <section class="login_content">
+                <form id="form">
+                    <h1>广州房源信息平台</h1>
+                    <div>
+                        <input type="text" class="form-control" placeholder="账号" required="" name="username" id="account"/>
+                    </div>
+                    <div>
+                        <input type="password" class="form-control" placeholder="密码" required="" name="password" id="pw"/>
+                    </div>
+                    <div>
+                        <a class="btn btn-default submit" id="login">登录</a>
+                    </div>
+                    <div class="clearfix"></div>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>
+</body>
+</html>

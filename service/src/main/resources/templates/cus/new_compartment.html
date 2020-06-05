@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="utf-8">
+    <title>new-compartment</title>
+    <link th:href="${#request.getContextPath()} + '/css/custom.css'" rel="stylesheet">
+    <link th:href="${#request.getContextPath()} + '/css/second_hand_detail.css'" rel="stylesheet" type="text/css">
+    <link th:href="${#request.getContextPath()} + '/css/index.css'" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" th:href="${#request.getContextPath()} + '/webjars/bootstrap/3.3.7/css/bootstrap.min.css'">
+    <script th:src="${#request.getContextPath()} + '/webjars/jquery/2.1.1/jquery.min.js'"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" th:href="${#request.getContextPath()} + '/css/webuploader.css'"/>
+    <link rel="stylesheet" type="text/css" th:href="${#request.getContextPath()} + '/css/style.css'"/>
+    <script type="text/javascript" th:src="${#request.getContextPath()} + '/js/webuploader.js'"></script>
+    <script type="text/javascript" th:src="${#request.getContextPath()} + '/js/compartment_upload.js'"></script>
+</head>
+<script type="text/javascript" th:inline="javascript">
+    // 路径
+    var base_path = [[${#httpServletRequest.getScheme() + '://' + #httpServletRequest.getServerName() + ":" + #httpServletRequest.getServerPort() + #httpServletRequest.getContextPath()}]];
+    // 页面初始化
+    $(window).load(
+        function () {
+            $("#pkSellRoom").val([[${pk}]])
+        }
+    );
+    // 点击事件
+    $(document).ready(function () {
+        // 个人信息
+        $("#person").click(function () {
+            window.location.href = '/customer/personal/' + $("#u").text()
+        })
+        // 加房型
+        $("#com").click(function () {
+            var i = $("#sd6 tr:last").attr("name")
+            $("#sd6").append(
+                "<tr name='" +
+                (++i) +
+                "'><th scope='row'><span class='glyphicon glyphicon-minus' style='color: red' onclick='minus(" +
+                i +
+                ")'></span></th>" +
+                "<td><input style='background-color: #BAB8B8;' type='text' name='pkSellRoomCompartment.compartments[" +
+                i +
+                "].spare1' class='col-lg-12'></td><td class='col-lg-4'><input style='background-color: #BAB8B8;' type='text' name='pkSellRoomCompartment.compartments[" +
+                i +
+                "].area' class='col-lg-12'></td><td><input style='background-color: #BAB8B8;' type='text' name='pkSellRoomCompartment.compartments[" +
+                i +
+                "].direction' class='col-lg-12'></td><td><input style='background-color: #BAB8B8;' type='text' name='pkSellRoomCompartment.compartments[" +
+                i +
+                "].windows'  class='col-lg-12'></td></tr>"
+            )
+        })
+    })
+
+    //增
+    function doCompratment() {
+        if ($("#compartment").val() == "") {
+            alert("请填好相应内容")
+        } else {
+            $.ajax({
+                type: "post",
+                data: $("#compartment_form").serialize(),
+                url: "/customer_data/do_compartment_info",
+                success: function (res) {
+                    if (!res) {
+                        alert("新建失败")
+                    } else {
+                        alert("新建成功")
+                        window.location.href = '/customer/personal/' + $("#u").text()
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+    }
+
+    // 减
+    function minus(x) {
+        $("#sd6 tr:eq(" + x + ")").html("")
+        $("#sd6 tr:eq(" + x + ")").hide()
+    }
+</script>
+
+
+<body data-spy="scroll" data-target="#myScrollspy">
+<div class="container">
+    <div class="jumbotron">
+        <h1>广州房源信息系统</h1>
+    </div>
+    <div class="row">
+        <div class="col-xs-3" id="myScrollspy">
+            <ul class="nav nav-tabs nav-stacked" data-spy="affix" data-offset-top="125">
+                <li class="active"><a href="/visitor/index">二手房</a></li>
+                <li><a href="/visitor/lease">租房</a></li>
+                <li><a href="/visitor/village">小区</a></li>
+                <li sec:authorize="!isAuthenticated()"><a data-toggle="modal" data-target="#addModal">登录/注册</a></li>
+                <li sec:authorize="isAuthenticated()">
+                    <a id="person"><span class="glyphicon glyphicon-ok-circle" style="color: green"></span>
+                        <span sec:authentication="name" id="u"></span></a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-9">
+            <form id="compartment_form">
+                <input id="pkSellRoom" name="pkSellRoom" type="text" hidden>
+                <div id="i">
+                    <div id="wrapper">
+                        <div id="container">
+                            <!--头部，相册选择和格式选择-->
+                            <div id="uploader">
+                                <div class="queueList">
+                                    <div id="dndArea" class="placeholder">
+                                        <div id="filePicker"></div>
+                                    </div>
+                                </div>
+                                <div class="statusBar" style="display:none;">
+                                    <div class="info"></div>
+                                    <div class="btns">
+                                        <div id="filePicker2"></div>
+                                        <div class="uploadBtn">开始上传</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="m" style="text-align: center"></div>
+                <br>
+                <hr>
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>该户型分间</h2>&nbsp;&nbsp;&nbsp;
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th><span class="glyphicon glyphicon-plus" style="color: green" id="com"></span></th>
+                                <th>房间</th>
+                                <th>面积（平米）</th>
+                                <th>朝向</th>
+                                <th>窗</th>
+                            </tr>
+                            </thead>
+                            <tbody id="sd6">
+                            <tr name="0">
+                                <th scope="row"><span class="glyphicon glyphicon-minus" style="color: red"
+                                                      onclick="minus(0)"></span></th>
+                                <td><input style='background-color: #BAB8B8;' type="text"
+                                           name="pkSellRoomCompartment.compartments[0].spare1" class="col-lg-12">
+                                </td>
+                                <td><input style='background-color: #BAB8B8;' type="text"
+                                           name="pkSellRoomCompartment.compartments[0].area" class="col-lg-12"></td>
+                                <td><input style='background-color: #BAB8B8;' type="text"
+                                           name="pkSellRoomCompartment.compartments[0].direction" class="col-lg-12">
+                                </td>
+                                <td><input style='background-color: #BAB8B8;' type="text"
+                                           name="pkSellRoomCompartment.compartments[0].windows" class="col-lg-12"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <input id="compartment" name="pkSellRoomCompartment.pkSellRoomCompartment" type="text" hidden>
+                    </div>
+                </div>
+                <br>
+                <hr>
+                <br>
+                <div id="but" style="text-align: center">
+                    <div class='col-md-6 col-md-offset-3'>
+                        <button type='button' class='btn btn-success' onclick='doCompratment()'>提交</button>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <button type='button' class='btn btn-primary' onclick='window.history.back(-1)'>取消</button>
+                    </div>
+                </div>
+                <br>
+                <br>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

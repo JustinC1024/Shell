@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chm.service.mapper.building.VillageImgMapper">
+
+    <insert id="doVillageImg" parameterType="villageImg">
+        INSERT INTO db_village_img (pk_village_img, img, pk_village, ts, dr) VALUES (
+          #{pkVillageImg}, #{img}, #{pkVillage}, #{ts}, 1
+        )
+    </insert>
+
+    <insert id="doListVillageImg" parameterType="list">
+        INSERT INTO db_village_img (pk_village_img, img, pk_village, ts, dr) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.pkVillageImg}, #{item.img}, #{item.pkVillage}, #{item.ts}, 0)
+        </foreach>
+    </insert>
+
+    <update id="updateVillageImg" parameterType="villageImg">
+        UPDATE db_village_img
+        <set>
+            <choose>
+                <when test="dr != null">
+                    dr = #{dr}
+                </when>
+                <when test="pkVillage != null">
+                    pk_village = #{pkVillage}, dr = 0,
+                    <if test="ind != null">
+                        ind = #{ind}
+                    </if>
+                </when>
+                <otherwise>
+                    ind = #{ind}
+                </otherwise>
+            </choose>
+        </set>
+        <where>pk_village_img = #{pkVillageImg}</where>
+    </update>
+
+    <update id="updateVillageImgByVillage" parameterType="String">
+        UPDATE db_village_img
+        <set>dr = 1</set>
+        <where>
+            pk_village = #{pk}
+        </where>
+    </update>
+
+    <select id="getVillageImgByPk" parameterType="String" resultType="villageImg">
+        SELECT img FROM db_village_img
+        <where>
+            pk_village_img = #{pk}
+        </where>
+    </select>
+</mapper>

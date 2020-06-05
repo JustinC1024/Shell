@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="utf-8">
+    <title>personal</title>
+    <link rel="stylesheet" type="text/css" th:href="${#request.getContextPath()} + '/css/webuploader.css'" />
+    <link rel="stylesheet" type="text/css" th:href="${#request.getContextPath()} + '/css/style.css'" />
+    <link th:href="${#request.getContextPath()} + '/css/custom.css'" rel="stylesheet">
+    <link th:href="${#request.getContextPath()} + '/css/index1.css'" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" th:href="${#request.getContextPath()} + '/webjars/bootstrap/3.3.7/css/bootstrap.min.css'">
+    <script th:src="${#request.getContextPath()} + '/webjars/jquery/2.1.1/jquery.min.js'"></script>
+    <script type="text/javascript" th:src="${#request.getContextPath()} + '/js/webuploader.js'"></script>
+    <script type="text/javascript" th:src="${#request.getContextPath()} + '/js/one_upload.js'"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" th:inline="javascript">
+        // 路径
+        var base_path = [[${#httpServletRequest.getScheme() + '://' + #httpServletRequest.getServerName() + ":" + #httpServletRequest.getServerPort() + #httpServletRequest.getContextPath()}]];
+        // 页面初始化
+        $(window).load(
+            function () {
+                initHtml()
+                $("#por2").hide()
+            }
+        );
+
+        var phone;
+        var introduction;
+
+        function initHtml() {
+            $.ajax({
+                type: "post",
+                data: {account: [[${account}]]},
+                url: "/nom_data/clerk",
+                dataType: "json",
+                success: function (res) {
+                    phone = (res.phone == null) ? "" : res.phone
+                    introduction = (res.introduction == null) ? "" : res.introduction
+                    $("#pkClerk").val(res.pkClerk)
+                    $("#account").val(res.account)
+                    $("#jurisdiction").val(res.pkJurisdiction.name)
+                    $("#name").val(res.name)
+                    if (res.phone != null && res.phone != "") {
+                        $("#phone").val(res.phone)
+                    }
+                    if (res.introduction != null && res.introduction != "") {
+                        $("#introduction").val(res.introduction)
+                    }
+                    if (res.img != null){
+                        $("#img").val(res.img)
+                        $("#por1_img").attr("src",
+                            base_path + "/customer_data/img/" + res.img
+                        )
+                    }else{
+                        $("#por1").hide()
+                        $("#por2").show()
+                    }
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+
+        $(document).ready(function () {
+            $("#phone").blur(function () {
+                if ($("#phone").val().search("[0-9]{11}")) {
+                    $("#phone_tie").text("请输入正确的电话号码")
+                } else {
+                    $("#phone_tie").text("")
+                }
+            });
+            // 旧密码
+            $("#pwCheck").click(function () {
+                if ($("#Oldpassword").val() == "" ||$("#Oldpassword") == null) {
+                    $("#pwTie").text("请输入密码")
+                }else {
+                    checkPw1()
+                }
+            })
+            $("#password").blur(function () {
+                if ($("#password2").val() == "") {
+                    $("#password_tie").text("")
+                } else {
+                    if ($("#password").val() == $("#password2").val()) {
+                        $("#password_tie").text("")
+                    } else {
+                        $("#password_tie").text("两次密码不一致")
+                    }
+                }
+            });
+            $("#password2").blur(function () {
+                if ($("#password").val() == $("#password2").val()) {
+                    $("#password_tie").text("")
+                } else {
+                    $("#password_tie").text("两次密码不一致")
+                }
+            });
+            // 更换头像
+            $("#por1_button").click(function () {
+                $("#por1").hide()
+                $("#por2").show()
+            })
+        })
+
+        // 修改
+        function change() {
+            $("#por1_button").removeAttr("hidden")
+            $("#filePicker").removeAttr("readonly")
+            $("#phone").removeAttr("readonly")
+            $("#introduction").removeAttr("readonly")
+            $("#but").html(
+                "<div class='col-md-6 col-md-offset-3'>" +
+                "<button type='button' class='btn btn-success' onclick='update()'>提交</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                "<button type='button' class='btn btn-primary' onclick='back()'>取消</button></div>"
+            )
+        }
+
+        // 提交
+        function update() {
+            $.ajax({
+                type: "post",
+                url: "/clerk_data/update_clerk",
+                data: $("#personalForm").serialize(),
+                success: function (res) {
+                    alert(res)
+                    window.location.reload()
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+        function up() {
+            if ($("#password").val() == "" || $("#password2").val() == "") {
+                alert("请填新密码")
+            } else {
+                update1()
+            }
+        }
+        function update1() {
+            $.ajax({
+                type: "post",
+                url: "/nom_data/update_password",
+                data: {
+                    pk : $("#pkClerk").val(),
+                    password : $("#password").val()
+                },
+                success: function (res) {
+                    alert(res)
+                    window.location.reload()
+                },
+                error: function () {
+                    alert("error")
+                }
+            })
+        }
+
+        // 返回
+        function back() {
+            // $("#phone").val(phone)
+            // $("#phone").attr("readonly")
+            // $("#introduction").val(introduction)
+            // $("#introduction").attr("readonly")
+            // $("#but").html(
+            //     "<div class='col-md-6 col-md-offset-3'><button onclick='change()' type='button' class='btn btn-success'>修改</button></div>"
+            // )
+            window.location.reload()
+        }
+
+        //密码验证
+        function checkPw1() {
+            $.ajax({
+                type : "post",
+                url : "/nom_data/password",
+                data : {
+                    account : $("#account").val(),
+                    password : $("#Oldpassword").val()
+                },
+                dataType : "json",
+                success : function (res) {
+                    if (res == 0) {
+                        $("#pwTie").text("密码错误")
+                    }else {
+                        $("#modal").html(
+                            "<div class='modal-header' style='text-align: center;'><button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button></div>" +
+                            "</div><form id='loginForm'>" +
+                            "<div class='modal-body col-lg-12' style='height: 160px;margin-top: 20px;'>" +
+                            "<div class='form-group'><label class='col-sm-2 control-label'>新密码</label>" +
+                            "<div class='col-sm-10'><input type='text' class='form-control'id='password'></div>" +
+                            "</div><br><br><br>" +
+                            "<div class='form-group'><label class='col-sm-2 control-label'>再输密码</label>" +
+                            "<div class='col-sm-10'><input type='password' class='form-control'id='password2'>" +
+                            "</div></div></div>" +
+                            " <div style='text-align: center;height: 260px;'>\n" +
+                            "<button type='button' class='btn btn-primary' onclick='up()'>提交</button>" +
+                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                            "<button type='button' class='btn btn-default' data-dismiss='modal' aria-hidden='true'>取消</button>" +
+                            "</div></form>"
+                        )
+                    }
+                },
+                error : function () {
+                    alert("error")
+                }
+            })
+        }
+    </script>
+</head>
+
+<body data-spy="scroll" data-target="#myScrollspy">
+<div class="container">
+    <div class="jumbotron">
+        <h1>广州房源信息系统</h1>
+    </div>
+    <div class="row">
+        <div class="col-xs-3" id="myScrollspy">
+            <ul class="nav nav-tabs nav-stacked nn" data-spy="affix" data-offset-top="125">
+                <li sec:authorize="hasRole('APPROVER')"><a href="/clerk/bill">订单</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a href="/admin/user">账号管理</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a href="/admin/bill">订单管理</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a href="/admin/info">信息管理</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a href="/admin/village">小区</a></li>
+                <li class="active"><a onclick="window.location.reload()"><span class="glyphicon glyphicon-ok-circle"
+                                                                               style="color: green"></span>
+                    <span sec:authentication="name"></span></a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-9">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title" sec:authorize="isAuthenticated()">
+                        <h2 sec:authentication="name"><i class="fa fa-bars"></i>&nbsp;&nbsp;&nbsp;鲁趁</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <button type="button" class="btn btn-success" data-toggle="modal"
+                                        data-target="#pwModal">修改密码
+                                </button>
+                            </li>
+                            <li>
+                                <form th:action="@{/cle/logout}" method="post">
+                                    <button id="out" type="submit" class="btn btn-danger">注销</button>
+                                </form>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        <div class="x_panel">
+                            <div class="x_content">
+                                <form class="form-horizontal form-label-left" novalidate id="personalForm">
+                                    <input id="pkClerk" name="pkClerk" hidden/>
+                                    <div sec:authorize="hasRole('APPROVER')" class="item form-group" style="text-align: center">
+                                        <div id="por1">
+                                            <div class="col-lg-12" style="height: 210px;">
+                                                <img id="por1_img" style="height: 200px;width: 200px;" >
+                                            </div>
+                                            <br>
+                                            <div class="col-lg-12" id="por1_button" hidden>
+                                                <button type="button" class="btn btn-danger">更换</button>
+                                            </div>
+                                        </div>
+                                        <div id="por2">
+                                            <div id="wrapper">
+                                                <div id="container">
+                                                    <!--头部，相册选择和格式选择-->
+                                                    <div id="uploader">
+                                                        <div class="queueList">
+                                                            <div id="dndArea" class="placeholder">
+                                                                <div id="filePicker"></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="statusBar" style="display:none;">
+                                                            <div class="info"></div>
+                                                            <div class="btns">
+                                                                <div id="filePicker2"></div><div class="uploadBtn">开始上传</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <input id="img" name="img" hidden>
+                                    <div class="item form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="account">姓名
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input type="text" id="account" name="account"
+                                                   required="required"
+                                                   class="form-control col-md-7 col-xs-12"
+                                                   readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="item form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="jurisdiction">权限
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input type="text" id="jurisdiction" required="required"
+                                                   class="form-control col-md-7 col-xs-12"
+                                                   readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="item form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name">姓名
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input type="text" id="name" name="name"
+                                                   required="required"
+                                                   class="form-control col-md-7 col-xs-12"
+                                                   readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="item form-group" sec:authorize="hasRole('APPROVER')">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                               for="phone">电话
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <input id="phone" class="form-control col-md-7 col-xs-12"
+                                                   data-validate-length-range="6" data-validate-words="2"
+                                                   name="phone" required="required" type="text"
+                                                   maxlength="11" readonly>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <p style="color: red" id="phone_tie"></p>
+                                        </div>
+                                    </div>
+
+                                    <div class="item form-group" sec:authorize="hasRole('APPROVER')">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                               for="introduction">个人介绍
+                                        </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <textarea class="form-control col-md-7 col-xs-12" rows="3"
+                                                      id="introduction" name="introduction" readonly></textarea>
+                                        </div>
+                                    </div>
+
+                                    <br>
+                                    <div class="form-group" id="but" style="text-align: center" sec:authorize="hasRole('APPROVER')">
+                                        <div class="col-md-6 col-md-offset-3">
+                                            <button onclick="change()" type="button"
+                                                    class="btn btn-success">修改
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="pwModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="modal">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="col-lg-2" style="margin-top: 20px;"></div>
+            <div class="modal-body col-lg-8" style="margin-top: 20px;">
+                <div class="form-group">
+                    <label for="Oldpassword" class="col-sm-2 control-label">密码</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="Oldpassword">
+                        <span class="input-group-btn">
+						<button class="btn btn-default" type="button" id="pwCheck">
+							<span class="glyphicon glyphicon-arrow-right"></span>
+						</button>
+					</span>
+                    </div><!-- /input-group -->
+                </div>
+                <div style="text-align: center">
+                    <p style="color: red" id="pwTie"></p>
+                </div>
+            </div>
+            <div class="col-lg-2" style="margin-top: 20px;"></div>
+            <div class="modal-footer" style="text-align: center;">
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+</body>
+</html>
